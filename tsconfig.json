@@ -1,0 +1,22 @@
+{
+  "include": ["*.ts","lib/**/*.ts", "config/*.tsx"],
+  "compilerOptions": {
+    "lib": ["es2017"],
+    "module": "commonjs",
+    "target": "es2017",
+    "experimentalDecorators": false,
+    "emitDecoratorMetadata": false,
+    "pretty": true,
+    "sourceMap": true,
+    "alwaysStrict": false,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "noUnusedLocals": true,
+    "strictNullChecks": true,
+    "noImplicitReturns": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "allowSyntheticDefaultImports": true,
+    "forceConsistentCasingInFileNames": true
+  }
+}

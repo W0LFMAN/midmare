@@ -1,0 +1,31 @@
+{
+  "name": "mid",
+  "version": "0.0.0",
+  "description": "program functional router ",
+  "main": "index.js",
+  "scripts": {
+    "compile": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/W0LFMAN/mid.git"
+  },
+  "keywords": [
+    "middleware",
+    "router"
+  ],
+  "engines": {
+    "node": ">=14.4"
+  },
+  "author": "Ivan Petushynskyi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/W0LFMAN/mid/issues"
+  },
+  "homepage": "https://github.com/W0LFMAN/mid#readme",
+  "devDependencies": {
+    "@types/node": "^14.0.14",
+    "typescript": "^3.9.5"
+  }
+}
