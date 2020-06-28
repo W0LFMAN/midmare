@@ -3,14 +3,14 @@ import {Middleware} from "./Middleware.class";
 import {Router} from "./Router.class";
 import {Context} from "./Context.class";
 
-export namespace Layer {
+export namespace Route {
     import Dict = NodeJS.Dict;
     import Path = Router.Path;
     import NextCallback = Middleware.NextCallback;
 
     export type AnyDict = { [key: string]: any };
 
-    export class Layer {
+    export class Route {
         public name: string = '';
         public stack: Middleware.Middleware[] = [];
         protected regexp: RegExp;

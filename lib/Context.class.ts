@@ -1,7 +1,7 @@
 import {Application} from "./Application.class";
 import {Middleware} from "./Middleware.class";
 import { Router } from "./Router.class";
-import { Layer } from "./Layer.class";
+import { Route } from "./Route.class";
 
 export namespace Context {
     import NextCallback = Middleware.NextCallback;
@@ -12,7 +12,7 @@ export namespace Context {
         public next: NextCallback;
         public params: Dict<string>;
         public captures: string;
-        public matched: Layer.Layer[] = [];
+        public matched: Route.Route[] = [];
         public routerPath: string;
         public path: string;
         public router: Router.Router;

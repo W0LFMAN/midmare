@@ -1,10 +1,10 @@
-import {Layer} from "./Layer.class";
+import {Route} from "./Route.class";
 import {Middleware} from "./Middleware.class";
 import {Application} from "./Application.class";
 
 export namespace Router {
     export class Router {
-        protected stack: Layer.Layer[] = [];
+        protected stack: Route.Route[] = [];
         protected params = {};
 
         constructor(protected options: IOptions) {}
@@ -24,16 +24,16 @@ export namespace Router {
                     });
 
                     for (let j = 0; j < cloneRouter.stack.length; j++) {
-                        const nestedLayer = cloneRouter.stack[j];
-                        const cloneLayer = Object.assign(
-                            Object.create(Layer.Layer.prototype),
-                            nestedLayer
+                        const nestedRoute = cloneRouter.stack[j];
+                        const cloneRoute = Object.assign(
+                            Object.create(Route.Route.prototype),
+                            nestedRoute
                         );
 
-                        if (path) cloneLayer.setPrefix(path);
-                        if (this.options.prefix) cloneLayer.setPrefix(this.options.prefix);
-                        this.stack.push(cloneLayer);
-                        cloneRouter.stack[j] = cloneLayer;
+                        if (path) cloneRoute.setPrefix(path);
+                        if (this.options.prefix) cloneRoute.setPrefix(this.options.prefix);
+                        this.stack.push(cloneRoute);
+                        cloneRouter.stack[j] = cloneRoute;
                     }
 
                     if (this.params) {
@@ -56,7 +56,7 @@ export namespace Router {
         register(path: Path, middleware: Middleware.Middleware | Middleware.Middleware[], options: IOptions = {} as IOptions) {
             const stack = this.stack;
 
-            const route = new Layer.Layer(path, middleware, {
+            const route = new Route.Route(path, middleware, {
                 end: !options.end ? options.end : true,
                 name: options.name,
                 sensitive: options.sensitive || this.options.sensitive || false,
@@ -89,18 +89,18 @@ export namespace Router {
         }
 
         match(path) {
-            const layers = this.stack;
-            let layer: Layer.Layer;
+            const Routes = this.stack;
+            let Route: Route.Route;
             const matched = {
-                path: [] as Layer.Layer[],
+                path: [] as Route.Route[],
                 route: false
             };
 
-            for (let len = layers.length, i = 0; i < len; i++) {
-                layer = layers[i];
+            for (let len = Routes.length, i = 0; i < len; i++) {
+                Route = Routes[i];
 
-                if (layer.match(path)) {
-                    matched.path.push(layer);
+                if (Route.match(path)) {
+                    matched.path.push(Route);
                     matched.route = true;
                 }
             }
@@ -124,7 +124,7 @@ export namespace Router {
             let dispatch: Middleware.Middleware = (ctx, next) => {
                 const path = router.options.routerPath || ctx.routerPath || ctx.path;
                 const matched = router.match(path);
-                let layerChain;
+                let RouteChain;
 
                 if (ctx.matched) {
                     ctx.matched.push.apply(ctx.matched, matched.path);
@@ -136,24 +136,24 @@ export namespace Router {
 
                 if (!matched.route) return next();
 
-                const matchedLayers = matched.path;
-                const mostSpecificLayer = matchedLayers[matchedLayers.length - 1];
-                ctx._matchedRoute = mostSpecificLayer.path;
-                if (mostSpecificLayer.name) {
-                    ctx._matchedRouteName = mostSpecificLayer.name;
+                const matchedRoutes = matched.path;
+                const mostSpecificRoute = matchedRoutes[matchedRoutes.length - 1];
+                ctx._matchedRoute = mostSpecificRoute.path;
+                if (mostSpecificRoute.name) {
+                    ctx._matchedRouteName = mostSpecificRoute.name;
                 }
 
-                layerChain = matchedLayers.reduce((memo, layer) => {
+                RouteChain = matchedRoutes.reduce((memo, Route) => {
                     memo.push((ctx, next) => {
-                        ctx.captures = layer.captures(path);
-                        ctx.params = layer.params(ctx.captures, ctx.params);
-                        ctx.routerName = layer.name;
+                        ctx.captures = Route.captures(path);
+                        ctx.params = Route.params(ctx.captures, ctx.params);
+                        ctx.routerName = Route.name;
                         return next();
                     });
-                    return memo.concat(layer.stack);
+                    return memo.concat(Route.stack);
                 }, [] as Middleware.Middleware[]);
 
-                return Application.Application.createCompose(layerChain)(ctx, next);
+                return Application.Application.createCompose(RouteChain)(ctx, next);
             };
 
             dispatch.router = router;
