@@ -11,9 +11,15 @@ export namespace Application {
         protected readonly router: Router.Router;
         protected readonly middleware: Middleware.Middleware[] = [];
         protected handler: (path: Path, data: any, ctx?: Context.Context) => void;
+        protected appTimeout: NodeJS.Timeout;
+        public readonly listen: Function;
 
         constructor(protected readonly options: IOptions) {
             this.router = new Router.Router({} as Router.IOptions);
+            if(options.withListen) {
+                this.listen = this.init;
+                this.appTimeout = setTimeout(this.__timeout,1000000000);
+            }
         }
 
         public init() {
@@ -21,8 +27,17 @@ export namespace Application {
             if(!this.handler) this.reload();
             this.use(this.router.routes());
             this.__initialized = true;
+
             return this;
         }
+
+        public stop() {
+            clearTimeout(this.appTimeout);
+        }
+
+        protected __timeout = () => {
+            this.appTimeout = setTimeout(this.__timeout,1000000000);
+        };
 
         protected execute(ctx: Context.Context, fnWare) {
             fnWare(ctx).catch(ctx.error);
@@ -99,5 +114,7 @@ export namespace Application {
         }
     }
 
-    export interface IOptions {}
+    export interface IOptions {
+        withListen?: boolean;
+    }
 }
