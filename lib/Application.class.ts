@@ -14,11 +14,10 @@ export namespace Application {
         protected appTimeout: NodeJS.Timeout;
         public readonly listen: Function;
 
-        constructor(protected readonly options: IOptions) {
+        constructor(public readonly options: IOptions = {}) {
             this.router = new Router.Router({} as Router.IOptions);
             if(options.withListen) {
                 this.listen = this.init;
-                this.appTimeout = setTimeout(this.__timeout,1000000000);
             }
         }
 
@@ -27,6 +26,10 @@ export namespace Application {
             if(!this.handler) this.reload();
             this.use(this.router.routes());
             this.__initialized = true;
+
+            if(this.listen) {
+                this.appTimeout = setTimeout(this.__timeout,1000000000);
+            }
 
             return this;
         }
@@ -89,10 +92,10 @@ export namespace Application {
         }
 
         public static createCompose(arrFn) {
+            let cyclicIgnore: Set<string> = new Set;
             if (!Array.isArray(arrFn)) throw new TypeError('Argument should be an array');
-            for (const fn of arrFn) {
-                if (typeof fn !== 'function') throw new TypeError('Collection should be an array of functions.');
-            }
+            if (arrFn.some(item => typeof item !== 'function'))
+                throw new TypeError('Collection should be an array of functions.');
 
             return function (context, next) {
                 let index = -1;
@@ -105,6 +108,9 @@ export namespace Application {
                     if (i === arrFn.length) fn = next;
                     if (!fn) return Promise.resolve();
                     try {
+                        if(!context.app.options.ignoreCyclicError && cyclicIgnore.has(context.path))
+                            return Promise.reject(new Error('Cyclic calling with same `path`: `'.concat(context.path, '`, be careful')));
+                        cyclicIgnore.add(context.path);
                         return Promise.resolve(fn(context, exec.bind(null, i + 1)));
                     } catch (err) {
                         return Promise.reject(err);
@@ -116,5 +122,6 @@ export namespace Application {
 
     export interface IOptions {
         withListen?: boolean;
+        ignoreCyclicError?: boolean;
     }
 }

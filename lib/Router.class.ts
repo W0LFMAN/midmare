@@ -124,7 +124,7 @@ export namespace Router {
             let dispatch: Middleware.Middleware = (ctx, next) => {
                 const path = router.options.routerPath || ctx.routerPath || ctx.path;
                 const matched = router.match(path);
-                let RouteChain;
+                let routeChain;
 
                 if (ctx.matched) {
                     ctx.matched.push.apply(ctx.matched, matched.path);
@@ -143,17 +143,17 @@ export namespace Router {
                     ctx._matchedRouteName = mostSpecificRoute.name;
                 }
 
-                RouteChain = matchedRoutes.reduce((memo, Route) => {
+                routeChain = matchedRoutes.reduce((memo, route) => {
                     memo.push((ctx, next) => {
-                        ctx.captures = Route.captures(path);
-                        ctx.params = Route.params(ctx.captures, ctx.params);
-                        ctx.routerName = Route.name;
+                        ctx.captures = route.captures(path);
+                        ctx.params = route.params(ctx.captures, ctx.params);
+                        ctx.routerName = route.name;
                         return next();
                     });
-                    return memo.concat(Route.stack);
+                    return memo.concat(route.stack);
                 }, [] as Middleware.Middleware[]);
 
-                return Application.Application.createCompose(RouteChain)(ctx, next);
+                return Application.Application.createCompose(routeChain)(ctx, next);
             };
 
             dispatch.router = router;
