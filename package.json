@@ -1,6 +1,6 @@
 {
-  "name": "mid",
-  "version": "0.0.0",
+  "name": "midmare",
+  "version": "1.0.0",
   "description": "program functional router ",
   "main": "index.js",
   "scripts": {
@@ -17,7 +17,7 @@
     "router"
   ],
   "engines": {
-    "node": ">=14.4"
+    "node": ">=10.0.0"
   },
   "author": "Ivan Petushynskyi",
   "license": "ISC",
@@ -30,6 +30,7 @@
     "typescript": "^3.9.5"
   },
   "dependencies": {
-    "path-to-regexp": "^6.1.0"
+    "path-to-regexp": "^6.1.0",
+    "uuid": "^8.2.0"
   }
 }
