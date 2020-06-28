@@ -89,18 +89,18 @@ export namespace Router {
         }
 
         match(path) {
-            const Routes = this.stack;
-            let Route: Route.Route;
+            const routes = this.stack;
+            let route: Route.Route;
             const matched = {
                 path: [] as Route.Route[],
                 route: false
             };
 
-            for (let len = Routes.length, i = 0; i < len; i++) {
-                Route = Routes[i];
+            for (let len = routes.length, i = 0; i < len; i++) {
+                route = routes[i];
 
-                if (Route.match(path)) {
-                    matched.path.push(Route);
+                if (route.match(path)) {
+                    matched.path.push(route);
                     matched.route = true;
                 }
             }
