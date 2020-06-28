@@ -1,17 +1,15 @@
 import { Context } from "./Context.class";
+import {Router} from "./Router.class";
 
 export namespace Middleware {
-    export class Middleware {
-        public callback: NextCallback;
-        constructor(protected readonly options: IOptions) {}
+    export interface Middleware {
+        (ctx: Context.Context, next: NextCallback): void;
+        param?: string;
+        router? : Router.Router;
     }
 
     export interface NextCallback {
-        (err: Error): void;
-        param: string;
+        (err?: Error): void;
     }
 
-    export interface IOptions {
-        callback: (ctx: Context.Context, next: NextCallback) => void;
-    }
 }

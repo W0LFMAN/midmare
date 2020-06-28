@@ -1,82 +1,191 @@
+import {Layer} from "./Layer.class";
 import {Middleware} from "./Middleware.class";
-import {Route} from "./Route.class";
-import {Context} from "./Context.class";
 import {Application} from "./Application.class";
-import {pathToRegexp} from 'path-to-regexp';
 
 export namespace Router {
     export class Router {
-        protected readonly nestedRouters: boolean = false;
+        protected stack: Layer.Layer[] = [];
+        protected params = {};
 
-        protected readonly middleware: Set<Middleware.Middleware> = new Set;
-        protected readonly routesStack: Map<string, Route.Route> = new Map;
-        protected readonly routerStack: Map<string, Router.Router> = new Map;
+        constructor(protected options: IOptions) {}
 
-        protected constructor(protected readonly options: IOptions) {
-        }
+        use(path: Path | Middleware.Middleware | Middleware.Middleware[] | null, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
+            path = typeof path === 'string' ? path : null;
+            middleware = !path && typeof path === 'function' ? path : middleware;
 
-        protected find(path: string) {
-            const regex = pathToRegexp(path);
-                const
-            result: Route.Route[] = [];
+            middleware = Array.isArray(middleware) ? middleware : [middleware!];
 
-            this.routesStack.forEach((value, routePath) => {
-                const full = [this.options.path, routePath].join(PathSeparator).replace(/\/+/g, PathSeparator);
-                if (regex.test(full)) {
-                    result.push(value);
+            if (middleware.some(fn => typeof fn !== "function")) throw new TypeError('Middleware should be function or array of functions.');
+
+            middleware.forEach(mw => {
+                if (mw.router) {
+                    const cloneRouter: Router = Object.assign(Object.create(Router.prototype), mw.router, {
+                        stack: mw.router.stack.slice(0)
+                    });
+
+                    for (let j = 0; j < cloneRouter.stack.length; j++) {
+                        const nestedLayer = cloneRouter.stack[j];
+                        const cloneLayer = Object.assign(
+                            Object.create(Layer.Layer.prototype),
+                            nestedLayer
+                        );
+
+                        if (path) cloneLayer.setPrefix(path);
+                        if (this.options.prefix) cloneLayer.setPrefix(this.options.prefix);
+                        this.stack.push(cloneLayer);
+                        cloneRouter.stack[j] = cloneLayer;
+                    }
+
+                    if (this.params) {
+                        const setRouterParams = (paramArr) => {
+                            const routerParams = paramArr;
+                            for (let j = 0; j < routerParams.length; j++) {
+                                const key = routerParams[j];
+                                cloneRouter.param(key, this.params[key]);
+                            }
+                        };
+
+                        setRouterParams(Object.keys(this.params));
+                    }
+                } else {
+                    this.register(path as Path || '(.*)', mw, {end: false, ignoreCaptures: !path} as IOptions);
                 }
             });
+        }
 
-            if (this.nestedRouters) {
-                this.routerStack.forEach((value, routerPath) => {
-                    const pathWithRouter = [this.options.path, routerPath];
-                    value.getRoutes().forEach((value, routePath) => {
-                        const full = pathWithRouter.concat(routePath).join(PathSeparator).replace(/\/+/g, PathSeparator);
-                        if (regex.test(full)) {
-                            result.push(value);
-                        }
-                    })
-                })
+        register(path: Path, middleware: Middleware.Middleware | Middleware.Middleware[], options: IOptions = {} as IOptions) {
+            const stack = this.stack;
+
+            const route = new Layer.Layer(path, middleware, {
+                end: !options.end ? options.end : true,
+                name: options.name,
+                sensitive: options.sensitive || this.options.sensitive || false,
+                strict: options.strict || this.options.strict || false,
+                prefix: options.prefix || this.options.prefix || "",
+                ignoreCaptures: options.ignoreCaptures
+            });
+
+            if (this.options.prefix) {
+                route.setPrefix(this.options.prefix);
             }
 
-            return result;
+
+            for (let i = 0; i < Object.keys(this.params).length; i++) {
+                const param = Object.keys(this.params)[i];
+                route.param(param, this.params[param]);
+            }
+
+            stack.push(route);
+
+            return route;
         }
 
-        protected add(route: Route.Route | Middleware.Middleware | Router.Router) {
+        route(name) {
+            const routes = this.stack;
+            for (let len = routes.length, i = 0; i < len; i++) {
+                if (routes[i].name && routes[i].name === name) return routes[i];
+            }
+            return false;
         }
 
-        protected execute(path: string) {
-            const ctx: Context.Context = new Context.Context({app: this.options.app});
-            const entries = this.middlewaresStack.entries();
+        match(path) {
+            const layers = this.stack;
+            let layer: Layer.Layer;
+            const matched = {
+                path: [] as Layer.Layer[],
+                route: false
+            };
 
-            const finded = this.find(path);
+            for (let len = layers.length, i = 0; i < len; i++) {
+                layer = layers[i];
 
+                if (layer.match(path)) {
+                    matched.path.push(layer);
+                    matched.route = true;
+                }
+            }
 
+            return matched;
         }
 
-        protected remove(route: Route.Route | Middleware.Middleware | Router.Router) {
+        param(param, middleware) {
+            this.params[param] = middleware;
+            for (let i = 0; i < this.stack.length; i++) {
+                const route = this.stack[i];
+                route.param(param, middleware);
+            }
+
+            return this;
         }
 
-        public getRoutes() {
-            return new Map(this.routesStack);
+        routes() {
+            const router = this;
+
+            let dispatch: Middleware.Middleware = (ctx, next) => {
+                const path = router.options.routerPath || ctx.routerPath || ctx.path;
+                const matched = router.match(path);
+                let layerChain;
+
+                if (ctx.matched) {
+                    ctx.matched.push.apply(ctx.matched, matched.path);
+                } else {
+                    ctx.matched = matched.path;
+                }
+
+                ctx.router = router;
+
+                if (!matched.route) return next();
+
+                const matchedLayers = matched.path;
+                const mostSpecificLayer = matchedLayers[matchedLayers.length - 1];
+                ctx._matchedRoute = mostSpecificLayer.path;
+                if (mostSpecificLayer.name) {
+                    ctx._matchedRouteName = mostSpecificLayer.name;
+                }
+
+                layerChain = matchedLayers.reduce((memo, layer) => {
+                    memo.push((ctx, next) => {
+                        ctx.captures = layer.captures(path);
+                        ctx.params = layer.params(ctx.captures, ctx.params);
+                        ctx.routerName = layer.name;
+                        return next();
+                    });
+                    return memo.concat(layer.stack);
+                }, [] as Middleware.Middleware[]);
+
+                return Application.Application.createCompose(layerChain)(ctx, next);
+            };
+
+            dispatch.router = router;
+
+            return dispatch;
         }
-    }
 
-    export class Global extends Router {
-        protected readonly nestedRouters: boolean = true;
+        process(name?: any, path?: any, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
+            if (typeof path === "string" || path instanceof RegExp) {
+                middleware = Array.prototype.slice.call(arguments, 2);
+            } else {
+                middleware = Array.prototype.slice.call(arguments, 1);
+                path = name;
+                name = null;
+            }
 
-        protected constructor(options: IOptions) {
-            super(options);
-        }
+            this.register(path, middleware!, {
+                name: name
+            } as IOptions);
 
-        public static create(options: IOptions): Global {
-            return new Global(options);
+            return this;
         }
     }
 
     export interface IOptions {
-        app: Application.Application;
-        path: string;
+        prefix: string;
+        strict: string;
+        sensitive: string;
+        ignoreCaptures: boolean;
+        end: boolean;
+        name: string;
+        routerPath: string;
     }
 
     export const PathSeparator = '/';

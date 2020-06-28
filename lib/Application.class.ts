@@ -6,20 +6,29 @@ export namespace Application {
     import Path = Router.Path;
 
     export class Application {
+        protected __initialized: boolean = false;
         protected context: Context.Context;
         protected readonly router: Router.Router;
         protected readonly middleware: Middleware.Middleware[] = [];
-        protected readonly handler: (path: Path, data: any) => void;
+        protected handler: (path: Path, data: any, ctx?: Context.Context) => void;
 
         constructor(protected readonly options: IOptions) {
-            this.handler = this.callback();
+            this.router = new Router.Router({} as Router.IOptions);
         }
 
-        execute(ctx: Context.Context, fnWare) {
+        public init() {
+            if(this.__initialized) return;
+            if(!this.handler) this.reload();
+            this.use(this.router.routes());
+            this.__initialized = true;
+            return this;
+        }
+
+        protected execute(ctx: Context.Context, fnWare) {
             fnWare(ctx).catch(ctx.error);
         }
 
-        createContext(path: Path) {
+        protected createContext(path: Path) {
             this.context = new Context.Context({
                 app: this,
                 path
@@ -28,24 +37,40 @@ export namespace Application {
             return Object.create(this.context);
         }
 
-        use(fn) {
-            if (typeof fn !== 'function') throw new TypeError('middleware must be a function.');
-            this.middleware.push(new Middleware.Middleware({ callback: fn }));
-            return this;
-        }
+        protected callback() {
+            let mw = Application.createCompose(this.middleware);
 
-        callback() {
-            const mw = Application.createCompose(this.middleware.map(item => item.callback));
+            return (path: Path, data: any, context?: Context.Context) => {
+                const newCtx = this.createContext(path);
 
-            return (path: Path, data: any) => {
-                const ctx = this.createContext(path);
-                ctx.set('data', data);
-                return this.execute(ctx, mw);
+                if(context) {
+                    mw = Application.createCompose(this.middleware.filter(m => !!m.router));
+                    newCtx.restore(context.store());
+                }
+
+                newCtx.set('data', data);
+                this.execute(newCtx, mw);
             };
         }
 
-        send(path: Path, data) {
-            this.handler(path, data);
+        public process(...args) {
+            this.router.process(...args);
+            return this;
+        }
+
+        public use(fn) {
+            if (typeof fn !== 'function') throw new TypeError('middleware must be a function.');
+            this.middleware.push(fn);
+            return this;
+        }
+
+        public reload() {
+            this.handler = this.callback();
+        }
+
+        public send(path: Path, data, ctx?: Context.Context) {
+            if (!this.handler || !this.__initialized) throw new Error('Application is not initialised.');
+            this.handler(path, data, ctx);
         }
 
         public static createCompose(arrFn) {
@@ -59,7 +84,7 @@ export namespace Application {
                 return exec(0);
 
                 function exec(i) {
-                    if (i <= index) return Promise.reject(new Error('next() called multiple times'))
+                    if (i <= index) return Promise.reject(new Error('Function next() called multiple times'));
                     index = i;
                     let fn = arrFn[i];
                     if (i === arrFn.length) fn = next;
@@ -74,7 +99,5 @@ export namespace Application {
         }
     }
 
-    export interface IOptions {
-
-    }
+    export interface IOptions {}
 }
