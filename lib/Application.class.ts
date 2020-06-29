@@ -106,13 +106,17 @@ export namespace Application {
                     index = i;
                     let fn = arrFn[i];
                     if (i === arrFn.length) fn = next;
-                    if (!fn) return Promise.resolve();
+                    if (!fn) {
+                        cyclicIgnore = new Set;
+                        return Promise.resolve();
+                    }
                     try {
-                        if(!context.app.options.ignoreCyclicError && cyclicIgnore.has(context.path))
-                            return Promise.reject(new Error('Cyclic calling with same `path`: `'.concat(context.path, '`, be careful')));
-                        cyclicIgnore.add(context.path);
+                        if(fn.router && !context.app.options.ignoreCyclicError && cyclicIgnore.has(context.path))
+                            throw new Error('Cyclic calling with same `path`: `'.concat(context.path, '`, be careful'));
+                        if(fn.router) cyclicIgnore.add(context.path);
                         return Promise.resolve(fn(context, exec.bind(null, i + 1)));
                     } catch (err) {
+                        cyclicIgnore = new Set;
                         return Promise.reject(err);
                     }
                 }

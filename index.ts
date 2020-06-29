@@ -9,14 +9,3 @@ export * from './lib/Route.class';
 export * from './lib/Middleware.class';
 export * from './lib/Context.class';
 export * from './lib/Application.class';
-
-const app = mid();
-
-app.process('/', (ctx) => {
-    // console.log(ctx.get('data'));
-    ctx.send('/', 'cyclic');
-});
-
-app.init();
-
-app.send('/', 'cyclic2');
