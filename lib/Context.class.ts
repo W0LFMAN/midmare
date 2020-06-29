@@ -1,0 +1,65 @@
+import {Application} from "./Application.class";
+import {Middleware} from "./Middleware.class";
+import { Router } from "./Router.class";
+import { Route } from "./Route.class";
+import { v4 } from 'uuid';
+
+export namespace Context {
+    import NextCallback = Middleware.NextCallback;
+    import Dict = NodeJS.Dict;
+
+    export class Context implements IContext {
+        private __store: Map<string, any> = new Map;
+        public params: Dict<string>;
+        public captures: string;
+        public matched: Route.Route[] = [];
+        public routerPath: string;
+        public path: string;
+        public router: Router.Router;
+        public routerName: string;
+        public _matchedRoute: string;
+        public _matchedRouteName: string;
+        public app: Application.Application;
+
+        constructor(protected readonly options: IOptions) {
+            this.path = this.options.path;
+            this.app = this.options.app;
+            this.set('__uuid', v4());
+        }
+
+        set(key: string, val: any): any {
+            this.__store.set(key, val);
+            return val;
+        }
+
+        get(key: string): any {
+            return this.__store.get(key);
+        }
+
+        store() {
+            return new Map(this.__store);
+        }
+
+        restore(newStore: Map<string, any>) {
+            return this.__store = newStore;
+        }
+
+        error(err: Error) {
+            throw err;
+        }
+
+        send(path: Router.Path, data: any, saveCtxStore?: Context.Context) {
+            this.options.app.send(path, data, saveCtxStore);
+        }
+    }
+
+    export interface IContext {
+        next?: NextCallback;
+        [key: string]: any;
+    }
+
+    export interface IOptions {
+        app: Application.Application;
+        [key: string]: any;
+    }
+}

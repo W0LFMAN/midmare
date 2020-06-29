@@ -8,7 +8,7 @@
     "emitDecoratorMetadata": false,
     "pretty": true,
     "sourceMap": true,
-    "alwaysStrict": false,
+    "alwaysStrict": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
     "noUnusedLocals": true,
