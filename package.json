@@ -1,7 +1,7 @@
 {
   "name": "midmare",
-  "version": "1.0.0",
-  "description": "program functional router ",
+  "version": "1.0.1",
+  "description": "program functional router",
   "main": "index.js",
   "scripts": {
     "compile": "tsc",
@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://git@github.com/W0LFMAN/mid.git"
+    "url": "git@github.com:W0LFMAN/midmare.git"
   },
   "keywords": [
     "middleware",
@@ -22,9 +22,9 @@
   "author": "Ivan Petushynskyi",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/W0LFMAN/mid/issues"
+    "url": "https://github.com/W0LFMAN/midmare/issues"
   },
-  "homepage": "https://github.com/W0LFMAN/mid#readme",
+  "homepage": "https://github.com/W0LFMAN/midmare#readme",
   "devDependencies": {
     "@types/node": "^14.0.14",
     "typescript": "^3.9.5"
