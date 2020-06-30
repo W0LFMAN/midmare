@@ -12,8 +12,8 @@ var Router;
             this.params = {};
         }
         use(path, middleware) {
-            path = typeof path === 'string' ? path : null;
-            middleware = !path && typeof path === 'function' ? path : middleware;
+            middleware = typeof path === 'function' ? path : middleware;
+            const hasPath = typeof path === 'string';
             middleware = Array.isArray(middleware) ? middleware : [middleware];
             if (middleware.some(fn => typeof fn !== "function"))
                 throw new TypeError('Middleware should be function or array of functions.');
@@ -25,7 +25,7 @@ var Router;
                     for (let j = 0; j < cloneRouter.stack.length; j++) {
                         const nestedRoute = cloneRouter.stack[j];
                         const cloneRoute = Object.assign(Object.create(Route_class_1.Route.Route.prototype), nestedRoute);
-                        if (path)
+                        if (hasPath)
                             cloneRoute.setPrefix(path);
                         if (this.options.prefix)
                             cloneRoute.setPrefix(this.options.prefix);
@@ -44,7 +44,7 @@ var Router;
                     }
                 }
                 else {
-                    this.register(path || '(.*)', mw, { end: false, ignoreCaptures: !path });
+                    this.register(path || '(.*)', mw, { end: false, ignoreCaptures: !hasPath });
                 }
             });
         }

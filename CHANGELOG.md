@@ -1,3 +1,6 @@
+### v1.1.7
+* Fix Routing implementation
+
 ### v1.1.6
 * Fix cycle handing routes.
 

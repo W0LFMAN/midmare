@@ -10,8 +10,8 @@ export namespace Router {
         constructor(protected options: IOptions) {}
 
         use(path: Path | Middleware.Middleware | Middleware.Middleware[] | null, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
-            path = typeof path === 'string' ? path : null;
-            middleware = !path && typeof path === 'function' ? path : middleware;
+            middleware = typeof path === 'function' ? path : middleware;
+            const hasPath = typeof path === 'string';
 
             middleware = Array.isArray(middleware) ? middleware : [middleware!];
 
@@ -30,7 +30,7 @@ export namespace Router {
                             nestedRoute
                         );
 
-                        if (path) cloneRoute.setPrefix(path);
+                        if (hasPath) cloneRoute.setPrefix(path);
                         if (this.options.prefix) cloneRoute.setPrefix(this.options.prefix);
                         this.stack.push(cloneRoute);
                         cloneRouter.stack[j] = cloneRoute;
@@ -48,7 +48,7 @@ export namespace Router {
                         setRouterParams(Object.keys(this.params));
                     }
                 } else {
-                    this.register(path as Path || '(.*)', mw, {end: false, ignoreCaptures: !path} as IOptions);
+                    this.register(path as Path || '(.*)', mw, {end: false, ignoreCaptures: !hasPath} as IOptions);
                 }
             });
         }
