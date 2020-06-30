@@ -37,7 +37,7 @@ const app = mid(); // or mid({ withListen: true });
 */
 app.helper(function someHelperName(yourArg1, yourArg2) {
   console.log('Hello helper.', yourArg1, yourArg2);
-} /*, second argument is binding of any context you want. To use `this` in function, by default - `app` */);
+} /*, second argument is binding of any context you want. To use `this` in function. */);
 
 
 app

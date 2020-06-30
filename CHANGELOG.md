@@ -1,3 +1,6 @@
+### v1.1.1
+* Fixed new functionality `helper`, removed binding by default.
+
 ### v1.1.0
 * Added new functionality `helper`.
 
