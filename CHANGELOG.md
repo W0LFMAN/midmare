@@ -1,3 +1,6 @@
+### v1.1.3
+* FastFix `helper` binding.
+
 ### v1.1.2
 * FastFix dist compile.
 
