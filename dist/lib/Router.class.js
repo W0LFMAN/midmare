@@ -47,6 +47,7 @@ var Router;
                     this.register(hasPath ? path : '(.*)', mw, { end: false, ignoreCaptures: !hasPath });
                 }
             });
+            return this;
         }
         register(path, middleware, options = {}) {
             const stack = this.stack;

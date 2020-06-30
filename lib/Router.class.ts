@@ -51,6 +51,7 @@ export namespace Router {
                     this.register(hasPath ? path as Path : '(.*)', mw, {end: false, ignoreCaptures: !hasPath} as IOptions);
                 }
             });
+            return this;
         }
 
         register(path: Path, middleware: Middleware.Middleware | Middleware.Middleware[], options: IOptions = {} as IOptions) {
