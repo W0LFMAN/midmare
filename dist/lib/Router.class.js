@@ -44,7 +44,7 @@ var Router;
                     }
                 }
                 else {
-                    this.register(path || '(.*)', mw, { end: false, ignoreCaptures: !hasPath });
+                    this.register(hasPath ? path : '(.*)', mw, { end: false, ignoreCaptures: !hasPath });
                 }
             });
         }

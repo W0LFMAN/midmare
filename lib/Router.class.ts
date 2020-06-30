@@ -48,7 +48,7 @@ export namespace Router {
                         setRouterParams(Object.keys(this.params));
                     }
                 } else {
-                    this.register(path as Path || '(.*)', mw, {end: false, ignoreCaptures: !hasPath} as IOptions);
+                    this.register(hasPath ? path as Path : '(.*)', mw, {end: false, ignoreCaptures: !hasPath} as IOptions);
                 }
             });
         }
