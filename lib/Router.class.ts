@@ -153,7 +153,7 @@ export namespace Router {
                     return memo.concat(route.stack);
                 }, [] as Middleware.Middleware[]);
 
-                return Application.Application.createCompose(routeChain.map(r => (r.route = true, r)))(ctx, next);
+                return Application.Application.createCompose(routeChain)(ctx, next);
             };
 
             dispatch.router = router;

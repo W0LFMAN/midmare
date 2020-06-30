@@ -19,6 +19,7 @@ export namespace Context {
         public _matchedRoute: string;
         public _matchedRouteName: string;
         public app: Application.Application;
+        public __pathStory: Set<string> = new Set;
 
         constructor(protected readonly options: IOptions) {
             this.path = this.options.path;
@@ -46,8 +47,8 @@ export namespace Context {
             throw err;
         }
 
-        send(path: Router.Path, data: any, saveCtxStore?: Context.Context) {
-            this.options.app.send(path, data, saveCtxStore);
+        send(path: Router.Path, data: any) {
+            this.options.app.send(path, data, this);
         }
     }
 

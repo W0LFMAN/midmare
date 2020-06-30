@@ -130,7 +130,7 @@ var Router;
                     });
                     return memo.concat(route.stack);
                 }, []);
-                return Application_class_1.Application.Application.createCompose(routeChain.map(r => (r.route = true, r)))(ctx, next);
+                return Application_class_1.Application.Application.createCompose(routeChain)(ctx, next);
             };
             dispatch.router = router;
             return dispatch;
