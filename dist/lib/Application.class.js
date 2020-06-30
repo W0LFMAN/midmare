@@ -10,6 +10,7 @@ var Application;
             this.options = options;
             this.__initialized = false;
             this.middleware = [];
+            this.helpers = Object.create(null);
             this.__timeout = () => {
                 this.appTimeout = setTimeout(this.__timeout, 1000000000);
             };
@@ -40,6 +41,9 @@ var Application;
             this.context = new Context_class_1.Context.Context({
                 app: this,
                 path
+            });
+            Object.entries(this.helpers).forEach(([name, helper]) => {
+                this.context[name] = helper;
             });
             return Object.create(this.context);
         }
@@ -72,6 +76,13 @@ var Application;
             if (!this.handler || !this.__initialized)
                 throw new Error('Application is not initialised.');
             this.handler(path, data, ctx);
+        }
+        helper(callback, context) {
+            if (!callback.name)
+                throw new Error('Helper must be named FunctionDeclaration.');
+            if (typeof this.helpers[callback.name] === 'function')
+                throw new Error('Helper with this named already declared.');
+            this.helpers[callback.name] = callback.bind(context || this);
         }
         static createCompose(arrFn) {
             let cyclicIgnore = new Set;

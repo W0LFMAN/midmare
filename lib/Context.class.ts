@@ -2,7 +2,6 @@ import {Application} from "./Application.class";
 import {Middleware} from "./Middleware.class";
 import { Router } from "./Router.class";
 import { Route } from "./Route.class";
-import { v4 } from 'uuid';
 
 export namespace Context {
     import NextCallback = Middleware.NextCallback;
@@ -24,7 +23,6 @@ export namespace Context {
         constructor(protected readonly options: IOptions) {
             this.path = this.options.path;
             this.app = this.options.app;
-            this.set('__uuid', v4());
         }
 
         set(key: string, val: any): any {
