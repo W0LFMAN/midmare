@@ -102,18 +102,18 @@ var Application;
                     if (i === arrFn.length)
                         fn = next;
                     if (!fn) {
-                        cyclicIgnore = new Set;
+                        cyclicIgnore.clear();
                         return Promise.resolve();
                     }
                     try {
-                        if (fn.router && !context.app.options.ignoreCyclicError && cyclicIgnore.has(context.path))
+                        if (fn.route && !context.app.options.ignoreCyclicError && cyclicIgnore.has(context.path))
                             throw new Error('Cyclic calling with same `path`: `'.concat(context.path, '`, be careful'));
-                        if (fn.router)
+                        if (fn.route)
                             cyclicIgnore.add(context.path);
                         return Promise.resolve(fn(context, exec.bind(null, i + 1)));
                     }
                     catch (err) {
-                        cyclicIgnore = new Set;
+                        cyclicIgnore.clear();
                         return Promise.reject(err);
                     }
                 }
