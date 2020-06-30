@@ -1,3 +1,6 @@
+### v1.1.4
+* FastFix `helper` implementation.
+
 ### v1.1.3
 * FastFix `helper` binding.
 

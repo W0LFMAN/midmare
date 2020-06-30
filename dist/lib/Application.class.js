@@ -83,6 +83,7 @@ var Application;
             if (typeof this.helpers[callback.name] === 'function')
                 throw new Error('Helper with this named already declared.');
             this.helpers[callback.name] = !context ? callback : callback.bind(context);
+            return this;
         }
         static createCompose(arrFn) {
             let cyclicIgnore = new Set;

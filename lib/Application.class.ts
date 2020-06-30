@@ -106,6 +106,7 @@ export namespace Application {
             if(!callback.name) throw new Error('Helper must be named FunctionDeclaration.');
             if(typeof this.helpers[callback.name] === 'function') throw new Error('Helper with this named already declared.');
             this.helpers[callback.name] = !context ? callback : callback.bind(context);
+            return this;
         }
 
 
