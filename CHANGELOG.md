@@ -1,3 +1,6 @@
+### v1.1.2
+* FastFix dist compile.
+
 ### v1.1.1
 * Fixed new functionality `helper`, removed binding by default.
 
