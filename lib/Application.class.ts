@@ -68,10 +68,12 @@ export namespace Application {
         protected callback() {
             let mw = Application.createCompose(this.middleware);
 
-            return (path: Path, data: any, context?: Context.Context) => {
+            return (path: Path, data: any, context: Context.Context) => {
                 const newCtx = this.createContext(path);
 
                 if (context) {
+                    context.__pathStory.add(context.path);
+                    newCtx.__pathStory = context.__pathStory;
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                     newCtx.restore(context.store());
                 }
@@ -97,7 +99,8 @@ export namespace Application {
         }
 
         public send(path: Path, data, ctx?: Context.Context) {
-            if (!this.handler || !this.__initialized) throw new Error('Application is not initialised.');
+            if (!this.handler || !this.__initialized) throw new Error('Application is not initialized.');
+
             this.handler(path, data, ctx);
         }
 
@@ -111,7 +114,6 @@ export namespace Application {
 
 
         public static createCompose(arrFn) {
-            let cyclicIgnore: Set<string> = new Set;
             if (!Array.isArray(arrFn)) throw new TypeError('Argument should be an array');
             if (arrFn.some(item => typeof item !== 'function'))
                 throw new TypeError('Collection should be an array of functions.');
@@ -126,16 +128,15 @@ export namespace Application {
                     let fn = arrFn[i];
                     if (i === arrFn.length) fn = next;
                     if (!fn) {
-                        cyclicIgnore.clear();
+                        context.__pathStory.clear();
                         return Promise.resolve();
                     }
                     try {
-                        if(fn.route && !context.app.options.ignoreCyclicError && cyclicIgnore.has(context.path))
+                        if(!context.app.options.ignoreCyclicError && context.__pathStory.has(context.path))
                             throw new Error('Cyclic calling with same `path`: `'.concat(context.path, '`, be careful'));
-                        if(fn.route) cyclicIgnore.add(context.path);
                         return Promise.resolve(fn(context, exec.bind(null, i + 1)));
                     } catch (err) {
-                        cyclicIgnore.clear();
+                        context.__pathStory.clear();
                         return Promise.reject(err);
                     }
                 }

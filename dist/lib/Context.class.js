@@ -8,6 +8,7 @@ var Context;
             this.options = options;
             this.__store = new Map;
             this.matched = [];
+            this.__pathStory = new Set;
             this.path = this.options.path;
             this.app = this.options.app;
         }
@@ -27,8 +28,8 @@ var Context;
         error(err) {
             throw err;
         }
-        send(path, data, saveCtxStore) {
-            this.options.app.send(path, data, saveCtxStore);
+        send(path, data) {
+            this.options.app.send(path, data, this);
         }
     }
     Context_1.Context = Context;

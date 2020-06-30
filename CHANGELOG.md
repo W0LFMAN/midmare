@@ -1,3 +1,9 @@
+### v1.1.6
+* Fix cycle handing routes.
+
+### v1.1.5
+* FastFix `helper` implementation.
+
 ### v1.1.4
 * FastFix `helper` implementation.
 

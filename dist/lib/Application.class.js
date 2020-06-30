@@ -52,6 +52,8 @@ var Application;
             return (path, data, context) => {
                 const newCtx = this.createContext(path);
                 if (context) {
+                    context.__pathStory.add(context.path);
+                    newCtx.__pathStory = context.__pathStory;
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                     newCtx.restore(context.store());
                 }
@@ -74,7 +76,7 @@ var Application;
         }
         send(path, data, ctx) {
             if (!this.handler || !this.__initialized)
-                throw new Error('Application is not initialised.');
+                throw new Error('Application is not initialized.');
             this.handler(path, data, ctx);
         }
         helper(callback, context) {
@@ -86,7 +88,6 @@ var Application;
             return this;
         }
         static createCompose(arrFn) {
-            let cyclicIgnore = new Set;
             if (!Array.isArray(arrFn))
                 throw new TypeError('Argument should be an array');
             if (arrFn.some(item => typeof item !== 'function'))
@@ -102,18 +103,16 @@ var Application;
                     if (i === arrFn.length)
                         fn = next;
                     if (!fn) {
-                        cyclicIgnore.clear();
+                        context.__pathStory.clear();
                         return Promise.resolve();
                     }
                     try {
-                        if (fn.route && !context.app.options.ignoreCyclicError && cyclicIgnore.has(context.path))
+                        if (!context.app.options.ignoreCyclicError && context.__pathStory.has(context.path))
                             throw new Error('Cyclic calling with same `path`: `'.concat(context.path, '`, be careful'));
-                        if (fn.route)
-                            cyclicIgnore.add(context.path);
                         return Promise.resolve(fn(context, exec.bind(null, i + 1)));
                     }
                     catch (err) {
-                        cyclicIgnore.clear();
+                        context.__pathStory.clear();
                         return Promise.reject(err);
                     }
                 }
