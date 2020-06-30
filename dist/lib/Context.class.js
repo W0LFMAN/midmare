@@ -1,7 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.Context = void 0;
-const uuid_1 = require("uuid");
 var Context;
 (function (Context_1) {
     class Context {
@@ -11,7 +10,6 @@ var Context;
             this.matched = [];
             this.path = this.options.path;
             this.app = this.options.app;
-            this.set('__uuid', uuid_1.v4());
         }
         set(key, val) {
             this.__store.set(key, val);

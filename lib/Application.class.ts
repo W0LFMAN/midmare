@@ -5,6 +5,11 @@ import {Middleware} from "./Middleware.class";
 export namespace Application {
     import Path = Router.Path;
 
+    export interface Helper {
+        (...args: any[]): any;
+        name: string;
+    }
+
     export class Application {
         protected __initialized: boolean = false;
         protected context: Context.Context;
@@ -12,6 +17,7 @@ export namespace Application {
         protected readonly middleware: Middleware.Middleware[] = [];
         protected handler: (path: Path, data: any, ctx?: Context.Context) => void;
         protected appTimeout: NodeJS.Timeout;
+        protected helpers: NodeJS.Dict<Helper> = Object.create(null);
         public readonly listen: Function;
 
         constructor(public readonly options: IOptions = {}) {
@@ -52,6 +58,10 @@ export namespace Application {
                 path
             });
 
+            Object.entries(this.helpers).forEach(([name, helper]) => {
+                this.context[name] = helper;
+            });
+
             return Object.create(this.context);
         }
 
@@ -61,7 +71,7 @@ export namespace Application {
             return (path: Path, data: any, context?: Context.Context) => {
                 const newCtx = this.createContext(path);
 
-                if(context) {
+                if (context) {
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                     newCtx.restore(context.store());
                 }
@@ -90,6 +100,14 @@ export namespace Application {
             if (!this.handler || !this.__initialized) throw new Error('Application is not initialised.');
             this.handler(path, data, ctx);
         }
+
+
+        public helper(callback: Helper, context?: any) {
+            if(!callback.name) throw new Error('Helper must be named FunctionDeclaration.');
+            if(typeof this.helpers[callback.name] === 'function') throw new Error('Helper with this named already declared.');
+            this.helpers[callback.name] = callback.bind(context || this);
+        }
+
 
         public static createCompose(arrFn) {
             let cyclicIgnore: Set<string> = new Set;

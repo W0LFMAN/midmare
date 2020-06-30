@@ -29,6 +29,17 @@ const mid = require('midmare');
 
 const app = mid(); // or mid({ withListen: true });
 
+
+/* 
+  You can add `helper` functions and use them from `ctx`.
+  Helper should be named function declaration - 
+  `function nameOfFunction() { ... }`
+*/
+app.helper(function someHelperName(yourArg1, yourArg2) {
+  console.log('Hello helper.', yourArg1, yourArg2);
+} /*, second argument is binding of any context you want. To use `this` in function, by default - `app` */);
+
+
 app
     .use(function(ctx, next) {
       ctx.user = 'Hi MID.'; // Wrong way to save your data, but works in current iteration context.
@@ -42,19 +53,20 @@ app
       /* Sending to another path */
       ctx.send('/some/other/path');
 
-    if(youWantToSaveYourDataStore && doNotWantUseMiddlewaresAgain) {
-      ctx.send('/some/another/path', 'SomeAnotherPathData', ctx);
-      /* 
-        That's gives you way to use stored in `ctx` data at next iteration
-        and remember that middleware(not routes) will not iterate before `/some/another/path`
-      */
-      /*
-        Be careful to use multiple sending in one route, that can overload your app.
-        And be careful with cyclic sending.
-      */
+      if(youWantToSaveYourDataStore && doNotWantUseMiddlewaresAgain) {
+        ctx.send('/some/another/path', 'SomeAnotherPathData', ctx);
+          /* 
+            That's gives you way to use stored in `ctx` data at next iteration
+            and remember that middleware(not routes) will not iterate before `/some/another/path`
+          
+            Be careful to use multiple sending in one route, that can overload your app.
+            And be careful with cyclic sending. App have protection from it.
+          */
+      }
 
-    }
-      
+      if(youWantUseYourHelper) {
+        ctx.someHelperName('yourArg1', 'yourArg2');
+      }
     });
 
 app.init(); // or `app.listen()` if you will use option `withListen`;
