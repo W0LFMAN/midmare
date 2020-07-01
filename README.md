@@ -21,14 +21,35 @@ Installation is done using the npm install command:
 
 ## Using of it
 
-That's really preaty simple. The same way as you use an "express.js" application,
+That's really pretty simple. The same way as you use an "express.js" application,
 but without HTTP Layer.
 
 ```js
-const mid = require('midmare');
+const {default: mid, Router: { Router }} = require('midmare');
 
 const app = mid(); // or mid({ withListen: true });
 
+/*
+  You can create your own router
+*/
+
+const someRouter = new Router({});
+
+someRouter.use((ctx, next) => {
+  ctx.set('someRoutingData', 'Hello Mid!');
+  next();
+});
+
+someRouter.process('/some-route-of-router', (ctx) => {
+  ctx.send('/next-route');
+});
+
+/*
+  You can use params in url
+*/
+someRouter.process('/model/:container/:id', ctx => {
+ console.log(ctx.params);
+});
 
 /* 
   You can add `helper` functions and use them from `ctx`.
@@ -53,21 +74,20 @@ app
       /* Sending to another path */
       ctx.send('/some/other/path');
 
-      if(youWantToSaveYourDataStore && doNotWantUseMiddlewaresAgain) {
-        ctx.send('/some/another/path', 'SomeAnotherPathData', ctx);
-          /* 
-            That's gives you way to use stored in `ctx` data at next iteration
-            and remember that middleware(not routes) will not iterate before `/some/another/path`
-          
-            Be careful to use multiple sending in one route, that can overload your app.
-            And be careful with cyclic sending. App have protection from it.
-          */
-      }
+      /*
+        DO NOT USE `app.send` inside of route/middleware !!!!
+      
+        Be careful to use multiple sending in one route/ middleware, that can overload your app.
+        And be careful with cyclic sending. App have protection from it.
+      */
+      
 
       if(youWantUseYourHelper) {
         ctx.someHelperName('yourArg1', 'yourArg2');
       }
-    });
+    })
+    // Adding router to chain
+    .use(someRouter.routes());
 
 app.init(); // or `app.listen()` if you will use option `withListen`;
 
@@ -88,4 +108,9 @@ app.send('/', 'Some data that you sending.');
 
 app.send('*', 'some data');
 
-``` 
+
+/* Send data to route with params */
+
+app.send('/model/Game/145932157', { data: 123 });
+```
+

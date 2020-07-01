@@ -1,3 +1,6 @@
+### v1.1.10
+* Fix Routing implementation
+
 ### v1.1.9
 * Fix Routing implementation
 
