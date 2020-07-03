@@ -6,18 +6,17 @@ var Context;
     class Context {
         constructor(options) {
             this.options = options;
-            this.__store = new Map;
             this.matched = [];
             this.__pathStory = new Set;
             this.path = this.options.path;
             this.app = this.options.app;
         }
         set(key, val) {
-            this.__store.set(key, val);
+            this[key] = val;
             return val;
         }
         get(key) {
-            return this.__store.get(key);
+            return this[key];
         }
         store() {
             return new Map(this.__store);
@@ -27,6 +26,11 @@ var Context;
         }
         error(err) {
             throw err;
+        }
+        assert(bool, err) {
+            if (!Boolean(bool)) {
+                this.error(err);
+            }
         }
         send(path, data) {
             this.options.app.send(path, data, this);

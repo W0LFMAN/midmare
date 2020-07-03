@@ -8,7 +8,6 @@ export namespace Context {
     import Dict = NodeJS.Dict;
 
     export class Context implements IContext {
-        private __store: Map<string, any> = new Map;
         public params: Dict<string>;
         public captures: string;
         public matched: Route.Route[] = [];
@@ -20,34 +19,41 @@ export namespace Context {
         public _matchedRouteName: string;
         public app: Application.Application;
         public __pathStory: Set<string> = new Set;
+        [key: string]: any;
 
         constructor(protected readonly options: IOptions) {
             this.path = this.options.path;
             this.app = this.options.app;
         }
 
-        set(key: string, val: any): any {
-            this.__store.set(key, val);
+        public set(key: string, val: any): any {
+            this[key] = val;
             return val;
         }
 
-        get(key: string): any {
-            return this.__store.get(key);
+        public get(key: string): any {
+            return this[key];
         }
 
-        store() {
+        public store() {
             return new Map(this.__store);
         }
 
-        restore(newStore: Map<string, any>) {
+        public restore(newStore: Map<string, any>) {
             return this.__store = newStore;
         }
 
-        error(err: Error) {
+        public error(err: Error) {
             throw err;
         }
 
-        send(path: Router.Path, data: any) {
+        public assert(bool: boolean, err: Error) {
+            if (!Boolean(bool)) {
+                this.error(err);
+            }
+        }
+
+        public send(path: Router.Path, data: any) {
             this.options.app.send(path, data, this);
         }
     }

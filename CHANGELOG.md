@@ -1,3 +1,9 @@
+### v1.1.11
+* Fixed app context implementation. Now context save all even after using `ctx.send`
+* Deleted store inside `Context` because of no need.
+* Created beta functionality `Router#httpRoutes`. Now you an use router routes in `http#createServer`.
+See example in `Readme.md` 
+
 ### v1.1.10
 * Fix Routing implementation
 

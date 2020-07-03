@@ -25,6 +25,7 @@ That's really pretty simple. The same way as you use an "express.js" application
 but without HTTP Layer.
 
 ```js
+const { createServer } = require('http');
 const {default: mid, Router: { Router }} = require('midmare');
 
 const app = mid(); // or mid({ withListen: true });
@@ -112,5 +113,17 @@ app.send('*', 'some data');
 /* Send data to route with params */
 
 app.send('/model/Game/145932157', { data: 123 });
+
+// HTTP ROUTER
+
+const httpRouter = new Router({ httpHandler: true });
+
+httpRouter.process('/', function get(ctx) {
+  ctx.res.status = 200;
+  ctx.response.setHeader('Content-type', 'text/html');
+  ctx.res.end('Hello World');
+});
+
+createServer(httpRouter.httpRoutes()).listen(3000);
 ```
 

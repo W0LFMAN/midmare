@@ -15,6 +15,7 @@ var Application;
                 this.appTimeout = setTimeout(this.__timeout, 1000000000);
             };
             this.router = new Router_class_1.Router.Router({});
+            this.context = new Context_class_1.Context.Context({ app: this });
             if (options.withListen) {
                 this.listen = this.init;
             }
@@ -25,6 +26,7 @@ var Application;
             if (!this.handler)
                 this.reload();
             this.use(this.router.routes());
+            Object.assign(this.context, this.helpers);
             this.__initialized = true;
             if (this.listen) {
                 this.appTimeout = setTimeout(this.__timeout, 1000000000);
@@ -38,13 +40,9 @@ var Application;
             fnWare(ctx).catch(ctx.error);
         }
         createContext(path) {
-            this.context = new Context_class_1.Context.Context({
-                app: this,
-                path
-            });
-            Object.entries(this.helpers).forEach(([name, helper]) => {
-                this.context[name] = helper;
-            });
+            this.context = Object.create(this.context);
+            this.context.path = path;
+            this.context.app = this;
             return Object.create(this.context);
         }
         callback() {
@@ -53,7 +51,11 @@ var Application;
                 const newCtx = this.createContext(path);
                 if (context) {
                     context.__pathStory.add(context.path);
-                    newCtx.__pathStory = context.__pathStory;
+                    for (let key in context) {
+                        if (context.hasOwnProperty(key)) {
+                            newCtx[key] = context[key];
+                        }
+                    }
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                     newCtx.restore(context.store());
                 }
@@ -109,7 +111,9 @@ var Application;
                     try {
                         if (!context.app.options.ignoreCyclicError && context.__pathStory.has(context.path))
                             throw new Error('Cyclic calling with same `path`: `'.concat(context.path, '`, be careful'));
-                        return Promise.resolve(fn(context, exec.bind(null, i + 1)));
+                        const next = exec.bind(null, i + 1);
+                        context.next = next;
+                        return Promise.resolve(fn(context, next));
                     }
                     catch (err) {
                         context.__pathStory.clear();

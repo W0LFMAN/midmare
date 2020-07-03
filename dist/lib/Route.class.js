@@ -15,6 +15,7 @@ var Route;
             this.stack = Array.isArray(middleware) ?
                 middleware :
                 [middleware];
+            this.stack.forEach(mw => mw.name && (mw.method = mw.name.toString()));
             if (this.stack.some(mw => typeof mw !== 'function'))
                 throw TypeError('All middleware should have callback function.');
         }

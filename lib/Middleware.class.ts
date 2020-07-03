@@ -6,6 +6,7 @@ export namespace Middleware {
         (ctx: Context.Context, next: NextCallback): void;
         param?: string;
         router? : Router.Router;
+        method?: 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'head' | 'trace' | 'connect' | string;
     }
 
     export interface NextCallback {

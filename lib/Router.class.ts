@@ -1,13 +1,32 @@
 import {Route} from "./Route.class";
 import {Middleware} from "./Middleware.class";
 import {Application} from "./Application.class";
+import * as url from 'url';
+import {Context} from "./Context.class";
 
 export namespace Router {
     export class Router {
         protected stack: Route.Route[] = [];
         protected params = {};
 
-        constructor(protected options: IOptions) {}
+        constructor(protected options: IOptions) {
+            if (options.httpHandler === true) {
+                this.use(async (ctx, next) => {
+                    try {
+                        await next();
+                    } catch (err) {
+                        ctx.json({
+                            status: 500,
+                            error: {
+                                name: err.name,
+                                message: err.message,
+                                stack: err.stack
+                            },
+                        });
+                    }
+                });
+            }
+        }
 
         use(path: Path | Middleware.Middleware | Middleware.Middleware[] | null, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
             middleware = typeof path === 'function' ? path : middleware;
@@ -123,6 +142,10 @@ export namespace Router {
             const router = this;
 
             let dispatch: Middleware.Middleware = (ctx, next) => {
+                const method = ctx.method.toLowerCase();
+
+                if(method && router.options.httpHandler) router.use(ctx => { ctx.res.status = 404; ctx.json({ json: 404 })  });
+
                 const path = router.options.routerPath || ctx.routerPath || ctx.path;
                 const matched = router.match(path);
                 let routeChain;
@@ -151,7 +174,11 @@ export namespace Router {
                         ctx.routerName = route.name;
                         return next();
                     });
-                    return memo.concat(route.stack);
+                    return memo.concat(
+                        method && router.options.httpHandler ?
+                            route.stack.filter(mw => mw.method === method || !mw.method) :
+                            route.stack
+                    );
                 }, [] as Middleware.Middleware[]);
 
                 return Application.Application.createCompose(routeChain)(ctx, next);
@@ -160,6 +187,79 @@ export namespace Router {
             dispatch.router = router;
 
             return dispatch;
+        }
+
+        // Simple http routes handling.
+        httpRoutes() {
+            if(!this.options.httpHandler) throw new Error('Router should be with option `httpHandler: true`');
+            return (request, response) => {
+                const ctx = Object.create(new Context.Context({ path: url.parse(request.url).pathname, app: { options: {} } as Application.Application }));
+
+                const req = {
+                    req: request,
+                    res: response,
+                    get method() { return this.req.method; },
+                    get url() { return this.req.url; },
+                    get path() { return url.parse(this.url).pathname; },
+                };
+
+                const res = {
+                    ctx,
+                    req: request,
+                    res: response,
+                    app: ctx.app,
+                    get headersSent() {
+                        return this.res.headersSent;
+                    },
+                    get status() {
+                        return this.res.statusCode;
+                    },
+                    set status(code) {
+                        ctx.assert(
+                            code >= 100 && code <= 999 &&
+                            Number.isInteger(code) &&
+                            Number.isFinite(code),
+                            new Error(`Invalid status code: ${code}, must be a number & not out of range 100 ~ 999.`)
+                        );
+                        this.res.statusCode = code;
+                    },
+                    get message() {
+                        return this.res.statusMessage;
+                    },
+                    set message(message) {
+                        this.res.statusMessage = message;
+                    },
+                    send(...args) {
+                        this.end(...args);
+                    },
+                    end(...args) {
+                        this.res.end(...args);
+                    },
+                    json(obj) {
+                        this.status = 200;
+                        this.res.setHeader('Content-Type', 'application/json');
+                        this.res.end(JSON.stringify(obj));
+                    },
+                    redirect(url) {
+                        this.res.setHeader('Location', url);
+                        this.res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+                        this.status = 302;
+                        this.end('Redirecting...');
+                    }
+                };
+
+                ctx.request = request;
+                ctx.req = req;
+                ctx.response = response;
+                ctx.res = res;
+                ctx.url = req.url;
+                ctx.method = req.method;
+                ctx.send = res.send.bind(res);
+                ctx.end = res.end.bind(res);
+                ctx.json = res.json.bind(res);
+                ctx.redirect = res.redirect.bind(res);
+                this.routes()(ctx, (err) => { ctx.next && ctx.next(err); });
+            };
         }
 
         process(name?: any, path?: any, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
@@ -180,13 +280,14 @@ export namespace Router {
     }
 
     export interface IOptions {
-        prefix: string;
-        strict: string;
-        sensitive: string;
-        ignoreCaptures: boolean;
-        end: boolean;
-        name: string;
-        routerPath: string;
+        prefix?: string;
+        strict?: string;
+        sensitive?: string;
+        ignoreCaptures?: boolean;
+        end?: boolean;
+        name?: string;
+        routerPath?: string;
+        httpHandler?: boolean;
     }
 
     export const PathSeparator = '/';
