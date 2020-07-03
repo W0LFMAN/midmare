@@ -1,4 +1,4 @@
-### v1.2.1
+### v1.2.2
 * Added `ctx.redirect` method for `HttpRouter`
 * Fixed `404` middleware for `HttpRouter`.
 

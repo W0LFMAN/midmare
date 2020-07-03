@@ -11,8 +11,6 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const Application_class_1 = require("./lib/Application.class");
-const Router_class_1 = require("./lib/Router.class");
-const http_1 = require("http");
 function mid(options) {
     return new Application_class_1.Application.Application(options);
 }
@@ -22,15 +20,4 @@ __exportStar(require("./lib/Route.class"), exports);
 __exportStar(require("./lib/Middleware.class"), exports);
 __exportStar(require("./lib/Context.class"), exports);
 __exportStar(require("./lib/Application.class"), exports);
-const r = new Router_class_1.Router.HttpRouter({});
-r.process('/', function get(ctx) {
-    ctx.status = 200;
-    ctx.body = '<h1>Hello World!</h1>';
-    return;
-});
-r.process('/ololo', function get(ctx) {
-    ctx.redirect('/');
-});
-const server = http_1.createServer(r.routes());
-server.listen(3000);
 //# sourceMappingURL=index.js.map
