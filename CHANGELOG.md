@@ -1,3 +1,7 @@
+### v1.2.1
+* Added `ctx.redirect` method for `HttpRouter`
+* Fixed `404` middleware for `HttpRouter`.
+
 ### v1.2.0
 * (Feature) Removed old functionality `Router#httpRoutes`, created `HttpRouter` nested by router.
 * Changed functionality of `HttpRouter`.

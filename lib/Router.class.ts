@@ -133,8 +133,8 @@ export namespace Router {
                 const method = ctx.method.toLowerCase();
 
                 if (method && http) router.use(ctx => {
-                    ctx.res.status = 404;
-                    ctx.json({json: 404})
+                    ctx.status = 404;
+                    ctx.json({status: 404})
                 });
 
                 const path = router.options.routerPath || ctx.routerPath || ctx.path;
@@ -416,6 +416,27 @@ export namespace Router {
                 json: {
                     value(data) {
                         response.end(JSON.stringify(data));
+                    },
+                    configurable: false
+                },
+                redirect: {
+                    value(url, alt) {
+                        if ('back' === url) url = this.ctx.get('Referrer') || alt || '/';
+                        this.set('Location', url);
+
+                        this.status = 302;
+
+                        // html
+                        if (this.ctx.accepts('html')) {
+                            url = escape(url);
+                            this.type = 'text/html; charset=utf-8';
+                            this.body = `Redirecting to <a href="${url}">${url}</a>.`;
+                            return;
+                        }
+
+                        // text
+                        this.type = 'text/plain; charset=utf-8';
+                        this.body = `Redirecting to ${url}.`;
                     },
                     configurable: false
                 },
