@@ -1,3 +1,8 @@
+### v1.2.0
+* (Feature) Removed old functionality `Router#httpRoutes`, created `HttpRouter` nested by router.
+* Changed functionality of `HttpRouter`.
+* Extended `context` inside http router. Now you can use `ctx.[body, header, headers, set, get, status, message, remove, has, type, length, send, end, json]`
+
 ### v1.1.11
 * Fixed app context implementation. Now context save all even after using `ctx.send`
 * Deleted store inside `Context` because of no need.

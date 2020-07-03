@@ -26,7 +26,7 @@ but without HTTP Layer.
 
 ```js
 const { createServer } = require('http');
-const {default: mid, Router: { Router }} = require('midmare');
+const {default: mid, Router: { Router, HttpRouter }} = require('midmare');
 
 const app = mid(); // or mid({ withListen: true });
 
@@ -116,14 +116,15 @@ app.send('/model/Game/145932157', { data: 123 });
 
 // HTTP ROUTER
 
-const httpRouter = new Router({ httpHandler: true });
+const httpRouter = new HttpRouter();
 
-httpRouter.process('/', function get(ctx) {
-  ctx.res.status = 200;
-  ctx.response.setHeader('Content-type', 'text/html');
-  ctx.res.end('Hello World');
+const r = new Router.HttpRouter({});
+
+r.process('/', function get(ctx) {
+    ctx.status = 200;
+    ctx.body = { ololo:1 };
 });
 
-createServer(httpRouter.httpRoutes()).listen(3000);
+createServer(httpRouter.routes()).listen(3000);
 ```
 
