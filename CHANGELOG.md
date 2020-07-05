@@ -1,3 +1,6 @@
+### v1.2.5
+* Fixin Github Actions
+
 ### v1.2.4
 * Added license
 
