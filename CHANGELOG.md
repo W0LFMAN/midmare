@@ -1,7 +1,11 @@
+### v1.2.4
+* Added license
+
 ### v1.2.3
 * Replaced `HttpRouter` to new npm module [a link](https://www.npmjs.com/package/midmare-http-router)
 * Added gulp & uglify.
 * Publishing automatically from github \[master merging].
+* Added Github actions for publish
 
 ### v1.2.2
 * Added `ctx.redirect` method for `HttpRouter`
