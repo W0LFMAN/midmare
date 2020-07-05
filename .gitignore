@@ -7,3 +7,4 @@ coverage/
 npm-debug.log
 .DS_Store
 *.iml
+dts_gen_expr.d.ts

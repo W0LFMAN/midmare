@@ -1,3 +1,6 @@
+### v1.2.6
+* `.npmignore` & `.gitignore` extending.
+
 ### v1.2.5
 * Fixin Github Actions
 
