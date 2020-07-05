@@ -2,4 +2,8 @@
 .history/
 .vscode/
 node_modules/
+dist/
+coverage/
+npm-debug.log
 .DS_Store
+*.iml

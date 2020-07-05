@@ -1,6 +1,7 @@
 {
   "include": ["*.ts","lib/**/*.ts", "config/*.tsx"],
   "compilerOptions": {
+    "declaration": true,
     "outDir": "./dist",
     "lib": ["es2017"],
     "module": "commonjs",
