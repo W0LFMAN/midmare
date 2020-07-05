@@ -1,4 +1,4 @@
-name: Node.js Package
+name: Publish MIDMARE
 on:
   release:
     types: [created]
@@ -13,6 +13,7 @@ jobs:
           node-version: '14.x'
           registry-url: 'https://registry.npmjs.org'
       - run: npm install
+      - run: npm run compile
       - run: npm publish
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_AUTH_TOKEN }}
