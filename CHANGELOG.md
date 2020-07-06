@@ -1,5 +1,6 @@
-### v1.3.1
+### v1.3.2
 * Fix coverage.
+* Deleted `index.js`
 
 ### v1.3.0
 * Removed maps dir
