@@ -1,3 +1,6 @@
+### v1.3.0
+* Removed maps dir
+
 ### v1.2.8
 * Ignore test directory in `.npmignore`
 
