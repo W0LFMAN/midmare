@@ -6,6 +6,7 @@ coverage/
 npm-debug.log
 .DS_Store
 lib/
+__tests__/
 docs/
 benchmarks/
 .github/
