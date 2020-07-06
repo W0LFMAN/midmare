@@ -1,3 +1,6 @@
+### v1.2.8
+* Ignore test directory in `.npmignore`
+
 ### v1.2.7
 * Added tests
 * Added codecov
