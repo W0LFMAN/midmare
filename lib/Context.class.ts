@@ -35,22 +35,8 @@ export namespace Context {
             return this[key];
         }
 
-        public store() {
-            return new Map(this.__store);
-        }
-
-        public restore(newStore: Map<string, any>) {
-            return this.__store = newStore;
-        }
-
         public error(err: Error) {
             throw err;
-        }
-
-        public assert(bool: boolean, err: Error) {
-            if (!Boolean(bool)) {
-                this.error(err);
-            }
         }
 
         public send(path: Router.Path, data: any) {

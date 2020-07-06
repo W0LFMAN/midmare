@@ -1,3 +1,7 @@
+### v1.2.7
+* Added tests
+* Added codecov
+
 ### v1.2.6
 * `.npmignore` & `.gitignore` extending.
 

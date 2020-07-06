@@ -13,8 +13,7 @@ benchmarks/
 .codecov.yml
 LICENSE
 gulpfile.js
-README.md
-CHANGELOG.md
+*.md
 tsconfig.json
 dts_gen_expr.d.ts
 index.ts

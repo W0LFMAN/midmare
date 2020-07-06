@@ -7,8 +7,7 @@ export namespace Router {
         protected stack: Route.Route[] = [];
         protected params = {};
 
-        constructor(protected options: IOptions) {
-        }
+        constructor(protected readonly options: IOptions = {}) {}
 
         public use(path: Path | Middleware.Middleware | Middleware.Middleware[] | null, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
             middleware = typeof path === 'function' ? path : middleware;
@@ -159,7 +158,7 @@ export namespace Router {
                     return memo.concat(route.stack);
                 }, [] as Middleware.Middleware[]);
 
-                return Application.Application.createCompose(routeChain)(ctx, next).then(() => ctx.__handleEnd()).catch(ctx.error);
+                return Application.Application.createCompose(routeChain)(ctx, next).catch(ctx.error);
             };
 
             dispatch.router = router;
@@ -186,13 +185,12 @@ export namespace Router {
 
     export interface IOptions {
         prefix?: string;
-        strict?: string;
-        sensitive?: string;
+        strict?: boolean;
+        sensitive?: boolean;
         ignoreCaptures?: boolean;
         end?: boolean;
         name?: string;
         routerPath?: string;
-        onError?: (...args: any[]) => void;
     }
 
     export type Path = string;

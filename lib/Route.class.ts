@@ -1,10 +1,9 @@
-import {pathToRegexp, Key} from 'path-to-regexp';
+import {pathToRegexp, Key, TokensToRegexpOptions} from 'path-to-regexp';
 import {Middleware} from "./Middleware.class";
 import {Router} from "./Router.class";
 import {Context} from "./Context.class";
 
 export namespace Route {
-    import Dict = NodeJS.Dict;
     import Path = Router.Path;
     import NextCallback = Middleware.NextCallback;
 
@@ -16,8 +15,8 @@ export namespace Route {
         protected regexp: RegExp;
         protected paramNames: Key[] = [];
 
-        constructor(public path: string, middleware: Middleware.Middleware[] | Middleware.Middleware, protected readonly options: Dict<any> = {} as AnyDict) {
-            this.regexp = pathToRegexp(this.path, this.paramNames, options);
+        constructor(public path: string, middleware: Middleware.Middleware[] | Middleware.Middleware, protected readonly options: Router.IOptions = {} as Router.IOptions) {
+            this.regexp = pathToRegexp(this.path, this.paramNames, {...options} as TokensToRegexpOptions);
             this.stack = Array.isArray(middleware) ?
                 middleware :
                 [middleware];
@@ -78,7 +77,7 @@ export namespace Route {
             if (this.path) {
                 this.path = (this.path !== '/' || this.options.strict === true) ? `${prefix}${this.path}` : prefix;
                 this.paramNames = [];
-                this.regexp = pathToRegexp(this.path, this.paramNames, this.options);
+                this.regexp = pathToRegexp(this.path, this.paramNames, {...this.options} as TokensToRegexpOptions);
             }
 
             return this;
