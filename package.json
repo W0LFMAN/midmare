@@ -1,13 +1,13 @@
 {
   "name": "midmare",
-  "version": "1.3.0",
+  "version": "1.3.1",
   "description": "program functional router",
   "main": "dist/index.js",
   "scripts": {
     "compile": "gulp default",
     "start": "node ./dist/index.js",
     "test": "jest __tests__/",
-    "coverage": "jest __tests__/ --coverage"
+    "coverage": "jest __tests__/ --coverage --collectCoverageFrom=dist/**/*.js --collectCoverageFrom=dist/*.js"
   },
   "repository": {
     "type": "git",
