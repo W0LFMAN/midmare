@@ -1,3 +1,6 @@
+### v1.3.1
+* Fix coverage.
+
 ### v1.3.0
 * Removed maps dir
 
