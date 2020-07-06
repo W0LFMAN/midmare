@@ -9,7 +9,6 @@
     "experimentalDecorators": false,
     "emitDecoratorMetadata": false,
     "pretty": true,
-    "sourceMap": true,
     "alwaysStrict": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
