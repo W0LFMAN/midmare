@@ -1,3 +1,7 @@
+[![npm version](https://badge.fury.io/js/midmare.svg)](https://www.npmjs.com/midmare)
+[![Build Status](https://travis-ci.com/parimatchtech/midmare.svg?branch=master)](https://travis-ci.com/parimatchtech/midmare)
+[![codecov.io](https://codecov.io/github/parimatchtech/midmare/coverage.svg?branch=master)](https://codecov.io/github/parimatchtech/midmare?branch=master)
+
 # MIDMARE library
 
 Minimalist library that routing functionality of program.
