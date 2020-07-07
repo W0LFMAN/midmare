@@ -1,3 +1,6 @@
+### v1.4.3
+* Readme bages added
+
 ### v1.4.2
 * Test Coverage `98%`
 
