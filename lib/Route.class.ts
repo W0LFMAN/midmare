@@ -6,6 +6,7 @@ import {Context} from "./Context.class";
 export namespace Route {
     import Path = Router.Path;
     import NextCallback = Middleware.NextCallback;
+    import Dict = NodeJS.Dict;
 
     export class Route {
         public name: string = '';
@@ -25,11 +26,11 @@ export namespace Route {
             if(this.stack.some(mw => typeof mw !== 'function')) throw TypeError('All middleware should have callback function.');
         }
 
-        match(path: Path) {
+        match(path: Path): boolean {
             return this.regexp.test(path);
         }
 
-        params(captures, existingParams) {
+        params(captures: RegExpMatchArray, existingParams: Dict<string>): Dict<string> {
             const params = existingParams || {};
             for (let len = captures.length, i=0; i<len; i++) {
                 if (this.paramNames[i]) {
@@ -40,7 +41,7 @@ export namespace Route {
             return params;
         }
 
-        param (param, fn) {
+        param (param: string, fn: Middleware.Middleware): Route {
             const stack = this.stack;
             const params = this.paramNames;
             const middleware = function (ctx: Context.Context, next: NextCallback) {
@@ -56,7 +57,7 @@ export namespace Route {
             const x = names.indexOf(param);
             if (x > -1) {
                 stack.some((mw, i) => {
-                    if (!mw.param || names.indexOf(fn.param) > x) {
+                    if (!mw.param || names.indexOf(fn.param!) > x) {
                         stack.splice(i, 0, middleware);
                         return true;
                     }
@@ -66,13 +67,13 @@ export namespace Route {
             }
 
             return this;
-        };
+        }
 
-        captures (path) {
-            return this.options.ignoreCaptures ? [] : path.match(this.regexp).slice(1);
-        };
+        captures (path: Path): RegExpMatchArray {
+            return this.options.ignoreCaptures ? [] : path.match(this.regexp)!.slice(1);
+        }
 
-        setPrefix (prefix) {
+        setPrefix (prefix: string): Route {
             if (this.path) {
                 this.path = (this.path !== '/' || this.options.strict === true) ? `${prefix}${this.path}` : prefix;
                 this.paramNames = [];
@@ -80,6 +81,6 @@ export namespace Route {
             }
 
             return this;
-        };
+        }
     }
 }
