@@ -3,13 +3,14 @@ import {Middleware} from "./Middleware.class";
 import {Application} from "./Application.class";
 
 export namespace Router {
+
     export class Router {
         protected stack: Route.Route[] = [];
         protected params = {};
 
         constructor(protected readonly options: IOptions = {}) {}
 
-        public use(path: Path | Middleware.Middleware | Middleware.Middleware[] | null, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
+        public use(path: Path | Middleware.Middleware | Middleware.Middleware[] | null, middleware?: Middleware.Middleware | Middleware.Middleware[]): Router {
             middleware = typeof path === 'function' ? path : middleware;
             const hasPath = typeof path === 'string';
 
@@ -57,7 +58,7 @@ export namespace Router {
             return this;
         }
 
-        public register(path: Path, middleware: Middleware.Middleware | Middleware.Middleware[], options: IOptions) {
+        public register(path: Path, middleware: Middleware.Middleware | Middleware.Middleware[], options: IOptions): Route.Route {
             const stack = this.stack;
             options = Object.assign({}, options);
 
@@ -85,15 +86,17 @@ export namespace Router {
             return route;
         }
 
-        public route(name) {
+        public route(name: string): Route.Route | false {
             const routes = this.stack;
+
             for (let len = routes.length, i = 0; i < len; i++) {
                 if (routes[i].name && routes[i].name === name) return routes[i];
             }
+
             return false;
         }
 
-        public match(path) {
+        public match(path: string): { path: Route.Route[], route: boolean } {
             const routes = this.stack;
             let route: Route.Route;
             const matched = {
@@ -113,7 +116,7 @@ export namespace Router {
             return matched;
         }
 
-        public param(param: string, middleware: (...args: any) => any) {
+        public param(param: string, middleware: (...args: any) => any): Router {
             this.params[param] = middleware;
             for (let i = 0; i < this.stack.length; i++) {
                 const route = this.stack[i];
@@ -123,14 +126,11 @@ export namespace Router {
             return this;
         }
 
-        public routes() {
-            const router = this;
+        public routes(): Middleware.Middleware {
+            const dispatch: Middleware.Middleware = (ctx, next) => {
+                const path = this.options.routerPath || ctx.routerPath || ctx.path;
 
-            let dispatch: Middleware.Middleware = (ctx, next) => {
-                const path = router.options.routerPath || ctx.routerPath || ctx.path;
-
-                const matched = router.match(path);
-                let routeChain;
+                const matched = this.match(path);
 
                 if (ctx.matched) {
                     ctx.matched.push.apply(ctx.matched, matched.path);
@@ -138,7 +138,7 @@ export namespace Router {
                     ctx.matched = matched.path;
                 }
 
-                ctx.router = router;
+                ctx.router = this;
 
                 if (!matched.route) return next();
 
@@ -149,7 +149,7 @@ export namespace Router {
                     ctx._matchedRouteName = mostSpecificRoute.name;
                 }
 
-                routeChain = matchedRoutes.reduce((memo, route) => {
+                const routeChain = matchedRoutes.reduce((memo, route) => {
                     memo.push((ctx, next) => {
                         ctx.captures = route.captures(path);
                         ctx.params = route.params(ctx.captures, ctx.params);
@@ -162,18 +162,18 @@ export namespace Router {
                 return Application.Application.createCompose(routeChain)(ctx, next).catch(ctx.error);
             };
 
-            dispatch.router = router;
+            dispatch.router = this;
 
             return dispatch;
         }
 
-        public process(name?: any, path?: Path, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
+        public process(name?: string, path?: Path, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
             if (typeof path === "string") {
                 middleware = Array.prototype.slice.call(arguments, 2);
             } else {
                 middleware = Array.prototype.slice.call(arguments, 1);
                 path = name;
-                name = null;
+                name = '';
             }
 
             this.register(path!, middleware!, {

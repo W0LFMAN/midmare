@@ -18,3 +18,5 @@ gulpfile.js
 tsconfig.json
 dts_gen_expr.d.ts
 index.ts
+.eslintrc.json
+.eslintignore

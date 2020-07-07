@@ -9,7 +9,7 @@ export namespace Context {
 
     export class Context implements IContext {
         public params: Dict<string>;
-        public captures: string;
+        public captures: RegExpMatchArray;
         public matched: Route.Route[] = [];
         public routerPath: string;
         public path: string;
@@ -26,7 +26,7 @@ export namespace Context {
             this.app = this.options.app;
         }
 
-        public set(key: string, val: any): any {
+        public set<T extends any>(key: string, val: T): T {
             this[key] = val;
             return val;
         }
@@ -35,12 +35,13 @@ export namespace Context {
             return this[key];
         }
 
-        public error(err: Error) {
+        public error(err: Error): void {
             throw err;
         }
 
-        public send(path: Router.Path, data: any) {
+        public send<T>(path: Router.Path, data: T): Context {
             this.options.app.send(path, data, this);
+            return this;
         }
     }
 

@@ -6,8 +6,9 @@ import {Middleware} from "./Middleware.class";
 export namespace Application {
     import Path = Router.Path;
 
-    export interface Helper {
-        (...args: any[]): any;
+    export type Callback = (...args: any[]) => any;
+
+    export interface Helper extends Callback {
         name: string;
     }
 
@@ -16,10 +17,10 @@ export namespace Application {
         protected context: Context.Context;
         protected readonly router: Router.Router;
         protected readonly middleware: Middleware.Middleware[] = [];
-        protected handler: (path: Path, data: any, ctx?: Context.Context) => void;
+        protected handler: <T extends any>(path: Path, data?: T, ctx?: Context.Context) => void;
         protected appTimeout: NodeJS.Timeout;
         protected helpers: NodeJS.Dict<Helper> = Object.create(null);
-        public readonly listen: Function;
+        public readonly listen: () => Application;
 
         constructor(public readonly options: IOptions = {}) {
             super();
@@ -30,7 +31,7 @@ export namespace Application {
             }
         }
 
-        public init() {
+        public init(): Application {
             if (this.__initialized) {
                 return this;
             }
@@ -41,30 +42,31 @@ export namespace Application {
             this.__initialized = true;
             this.emit('initialized');
 
-            if(this.listen) {
+            if(this.options.withListen) {
                 this.__timeout();
             }
 
             return this;
         }
 
-        public stop() {
+        public stop(): Application {
             this.__initialized = false;
             this.emit('stop');
             clearTimeout(this.appTimeout);
+            return this;
         }
 
-        protected __timeout = () => {
+        protected __timeout = (): void => {
             this.appTimeout = setTimeout(this.__timeout,1000000000);
         };
 
-        protected execute(ctx: Context.Context, fnWare) {
+        protected execute(ctx: Context.Context, fnWare: Callback): void {
             fnWare(ctx)
                 .then(() => this.emit('end', ctx))
                 .catch((err) => this.emit('error', err));
         }
 
-        protected createContext(path: Path) {
+        protected createContext(path: Path): Context.Context {
             this.context = Object.assign(
                 Object.create(this.context),
                 {
@@ -76,7 +78,7 @@ export namespace Application {
             return Object.create(this.context);
         }
 
-        protected callback() {
+        protected callback(): Callback {
             let mw = Application.createCompose(this.middleware);
 
             return (path: Path, data: any, context: Context.Context) => {
@@ -85,7 +87,7 @@ export namespace Application {
                 if (context) {
                     context.__pathStory.add(context.path);
 
-                    for(let key in context) {
+                    for(const key in context) {
                         if(context.hasOwnProperty(key)) {
                             newCtx[key] = context[key];
                         }
@@ -99,23 +101,23 @@ export namespace Application {
             };
         }
 
-        public process(...args) {
+        public process(...args: any[]): Application {
             this.router.process(...args);
             return this;
         }
 
-        public use(fn) {
+        public use(fn: Callback): Application {
             if (typeof fn !== 'function') throw new TypeError('middleware must be a function.');
             this.middleware.push(fn);
             return this;
         }
 
-        public reload() {
+        public reload(): Application {
             this.handler = this.callback();
             return this;
         }
 
-        public send(path: Path, data, ctx?: Context.Context) {
+        public send<T extends any>(path: Path, data: T, ctx?: Context.Context): Application {
             if (!this.handler || !this.__initialized) throw new Error('Application is not initialized.');
 
             this.handler(path, data, ctx);
@@ -123,19 +125,19 @@ export namespace Application {
         }
 
 
-        public helper(name?: string,callback?: Helper, context?: any) {
+        public helper(name?: string,callback?: Helper, context?: Context.Context): Application {
             callback = typeof name === 'function' ? name : callback;
             name = typeof name === 'string' ? name : callback ? callback.name : undefined;
 
             if(!name) throw new Error('Helper must be named FunctionDeclaration or first argument should be not empty string.');
             if(!callback) throw new Error('Helper must be function or Function Declaration.');
             if(typeof this.helpers[name] === 'function') throw new Error('Helper with this named already declared.');
-            this.helpers[name] = !context ? callback : callback!.bind(context);
+            this.helpers[name] = !context ? callback : callback.bind(context);
             return this;
         }
 
 
-        public static createCompose(arrFn) {
+        public static createCompose(arrFn: Callback[]): Callback {
             if (!Array.isArray(arrFn)) throw new TypeError('Argument should be an array');
             if (arrFn.some(item => typeof item !== 'function'))
                 throw new TypeError('Collection should be an array of functions.');

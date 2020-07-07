@@ -1,3 +1,6 @@
+### v1.4.2
+* Test Coverage `98%`
+
 ### v1.4.1
 * Test Coverage `98%`
 

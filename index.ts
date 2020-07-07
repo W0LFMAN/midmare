@@ -1,6 +1,6 @@
 import {Application} from "./lib/Application.class";
 
-export default function mid(options?: Application.IOptions) {
+export default function mid(options?: Application.IOptions): Application.Application {
     return new Application.Application(options);
 }
 
