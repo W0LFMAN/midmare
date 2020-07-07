@@ -11,10 +11,10 @@ describe('Testing `Router` functionality: ', () => {
       next();
     });
     
-    router.use((ctx, next) => {
+    router.use('(.*)', [(ctx, next) => {
       result.push(2);
       next();
-    });
+    }]);
     
     router.routes()(Object.create(new Context({app: new Application, path: '/'})));
     
@@ -29,27 +29,42 @@ describe('Testing `Router` functionality: ', () => {
   });
   
   it('should use sub-router', () => {
-    const router = new Router();
-    const subRouter1 = new Router({ prefix: '/prefix' });
+    const app =  new Application;
+    const router = new Router({ prefix: '/prefix' });
+    const subRouter1 = new Router();
     const subRouter2 = new Router();
     const subRouter3 = new Router();
     
     const result = [];
+  
+    router.param('id', (param, ctx, next) => {
+      assert.doesNotThrow(() => {
+        assert.strictEqual(param, '123');
+      });
     
-    router.process('/route/1', ctx => {
+      next();
+    });
+    
+    router.process('/route/:id', ctx => {
       result.push(ctx.path);
     });
     subRouter1.process('/sub-route/2', ctx => {
       result.push(ctx.path);
     });
     
-    subRouter2.process('/', ctx => {
+    subRouter2.process('name', '/', ctx => {
       result.push(ctx.path);
     });
     
-    router.process('/route/3', ctx => {
+    router.register('/some-route/3', ctx => {
       result.push(ctx.path);
     });
+    
+    const route1 = subRouter2.route('name');
+    const route2 = subRouter2.route('name1');
+    
+    assert.strictEqual(route1.name, 'name');
+    assert.strictEqual(route2, false);
     
     router.use(subRouter1.routes());
     router.use('/sub-route/router', subRouter2.routes());
@@ -57,12 +72,13 @@ describe('Testing `Router` functionality: ', () => {
   
     const composed = router.routes();
     
-    composed(Object.create(new Context({app: new Application, path: '/route/1'})), () => {}); // send analogue
-    composed(Object.create(new Context({app: new Application, path: '/prefix/sub-route/2'})), () => {});
-    composed(Object.create(new Context({app: new Application, path: '/sub-route/router'})), () => {});
-    composed(Object.create(new Context({app: new Application, path: '/route/3'})), () => {});
+    composed(Object.create(new Context({app, path: '/prefix/route/123'})), () => {}); // `app.send` analogue
+    composed(Object.create(new Context({app, path: '/prefix/sub-route/2'})), () => {});
+    composed(Object.create(new Context({app, path: '/prefix/sub-route/router'})), () => {});
+    composed(Object.create(new Context({app, path: '/prefix/some-route/3'})), () => {});
+    composed(Object.create(new Context({app, path: '/ololo'})), () => {});
     
-    assert.deepStrictEqual(result,['/route/1', '/prefix/sub-route/2', '/sub-route/router', '/route/3']);
+    assert.deepStrictEqual(result,['/prefix/route/123', '/prefix/sub-route/2', '/prefix/sub-route/router', '/prefix/some-route/3']);
   });
   
   it('should parse params', () => {
@@ -74,28 +90,19 @@ describe('Testing `Router` functionality: ', () => {
       });
     });
     
-    router.param('parameter', (param, ctx, next) => {
-      assert.doesNotThrow(() => {
-        assert.strictEqual(param, 'some-val');
-      });
-      
-      next();
-    });
-    
     router.routes()(Object.create(new Context({app: new Application, path: '/some-val'})), () => {});
   });
   
   it('should use middleware with path', () => {
     const router = new Router();
+    const router1 = new Router();
     const result = [];
     
-    router.process('/route/1', ctx => {
+    router.process('/route/:id', ctx => {
       result.push(ctx.path);
     });
     
-    router.process('/route/2', ctx => {
-      result.push(ctx.path);
-    });
+    router.use(router1.routes());
     
     const composed = router.routes();
     

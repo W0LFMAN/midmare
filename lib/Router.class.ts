@@ -36,7 +36,7 @@ export namespace Router {
                         cloneRouter.stack[j] = cloneRoute;
                     }
 
-                    if (this.params) {
+                    if (Object.keys(this.params).length) {
                         const setRouterParams = (paramArr) => {
                             const routerParams = paramArr;
                             for (let j = 0; j < routerParams.length; j++) {
@@ -57,8 +57,9 @@ export namespace Router {
             return this;
         }
 
-        public register(path: Path, middleware: Middleware.Middleware | Middleware.Middleware[], options: IOptions = {} as IOptions) {
+        public register(path: Path, middleware: Middleware.Middleware | Middleware.Middleware[], options: IOptions) {
             const stack = this.stack;
+            options = Object.assign({}, options);
 
             const route = new Route.Route(path, middleware, {
                 end: !options.end ? options.end : true,
@@ -112,7 +113,7 @@ export namespace Router {
             return matched;
         }
 
-        public param(param, middleware) {
+        public param(param: string, middleware: (...args: any) => any) {
             this.params[param] = middleware;
             for (let i = 0; i < this.stack.length; i++) {
                 const route = this.stack[i];
@@ -166,8 +167,8 @@ export namespace Router {
             return dispatch;
         }
 
-        public process(name?: any, path?: any, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
-            if (typeof path === "string" || path instanceof RegExp) {
+        public process(name?: any, path?: Path, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
+            if (typeof path === "string") {
                 middleware = Array.prototype.slice.call(arguments, 2);
             } else {
                 middleware = Array.prototype.slice.call(arguments, 1);
@@ -175,7 +176,7 @@ export namespace Router {
                 name = null;
             }
 
-            this.register(path, middleware!, {
+            this.register(path!, middleware!, {
                 name: name
             } as IOptions);
 

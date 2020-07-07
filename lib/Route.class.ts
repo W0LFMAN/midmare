@@ -7,8 +7,6 @@ export namespace Route {
     import Path = Router.Path;
     import NextCallback = Middleware.NextCallback;
 
-    export type AnyDict = { [key: string]: any };
-
     export class Route {
         public name: string = '';
         public stack: Middleware.Middleware[] = [];
@@ -16,6 +14,7 @@ export namespace Route {
         protected paramNames: Key[] = [];
 
         constructor(public path: string, middleware: Middleware.Middleware[] | Middleware.Middleware, protected readonly options: Router.IOptions = {} as Router.IOptions) {
+            this.name = options.name || "";
             this.regexp = pathToRegexp(this.path, this.paramNames, {...options} as TokensToRegexpOptions);
             this.stack = Array.isArray(middleware) ?
                 middleware :
