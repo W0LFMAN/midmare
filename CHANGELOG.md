@@ -1,3 +1,6 @@
+### v1.4.4
+* Removed dist js files from code
+
 ### v1.4.3
 * Readme bages added
 
