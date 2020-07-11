@@ -10,7 +10,7 @@ export namespace Context {
     export class Context implements IContext {
         public params: Dict<string>;
         public captures: RegExpMatchArray;
-        public matched: Route.Route[] = [];
+        public matched: Route.Route[];
         public routerPath: string;
         public path: string;
         public router: Router.Router;

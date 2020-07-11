@@ -14,7 +14,7 @@ export namespace Router {
             middleware = typeof path === 'function' ? path : middleware;
             const hasPath = typeof path === 'string';
 
-            middleware = Array.isArray(middleware) ? middleware : [middleware!];
+            middleware = Array.isArray(middleware) ? middleware : [middleware as Middleware.Middleware];
 
             if (middleware.some(fn => typeof fn !== "function")) throw new TypeError('Middleware should be function or array of functions.');
 
@@ -31,7 +31,7 @@ export namespace Router {
                             nestedRoute
                         );
 
-                        if (hasPath) cloneRoute.setPrefix(path);
+                        if (hasPath) cloneRoute.setPrefix(path as string);
                         if (this.options.prefix) cloneRoute.setPrefix(this.options.prefix);
                         this.stack.push(cloneRoute);
                         cloneRouter.stack[j] = cloneRoute;
@@ -133,7 +133,7 @@ export namespace Router {
                 const matched = this.match(path);
 
                 if (ctx.matched) {
-                    ctx.matched.push.apply(ctx.matched, matched.path);
+                    ctx.matched.push(...matched.path);
                 } else {
                     ctx.matched = matched.path;
                 }
@@ -167,7 +167,7 @@ export namespace Router {
             return dispatch;
         }
 
-        public process(name?: string, path?: Path, middleware?: Middleware.Middleware | Middleware.Middleware[]) {
+        public process(name?: string, path?: Path, middleware?: Middleware.Middleware | Middleware.Middleware[]): Router {
             if (typeof path === "string") {
                 middleware = Array.prototype.slice.call(arguments, 2);
             } else {
@@ -176,7 +176,7 @@ export namespace Router {
                 name = '';
             }
 
-            this.register(path!, middleware!, {
+            this.register(path as Path, middleware as Middleware.Middleware, {
                 name: name
             } as IOptions);
 
