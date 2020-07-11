@@ -44,14 +44,13 @@ describe('Testing `Router` functionality: ', () => {
     
       next();
     });
-    
     router.process('/route/:id', ctx => {
       result.push(ctx.path);
     });
     subRouter1.process('/sub-route/2', ctx => {
       result.push(ctx.path);
     });
-    
+
     subRouter2.process('name', '/', ctx => {
       result.push(ctx.path);
     });
@@ -77,7 +76,7 @@ describe('Testing `Router` functionality: ', () => {
     composed(Object.create(new Context({app, path: '/prefix/sub-route/router'})), () => {});
     composed(Object.create(new Context({app, path: '/prefix/some-route/3'})), () => {});
     composed(Object.create(new Context({app, path: '/ololo'})), () => {});
-    
+
     assert.deepStrictEqual(result,['/prefix/route/123', '/prefix/sub-route/2', '/prefix/sub-route/router', '/prefix/some-route/3']);
   });
   

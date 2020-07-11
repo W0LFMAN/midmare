@@ -15,24 +15,30 @@ describe('Testing `Route` functionality: ', () => {
   });
   
   it('should test full functionality of `Route` ', () => {
-    const path = '/lalka/path/123';
-    const route = new Route('/path/:id', [(_, next) => { next(); }], { strict: true }).setPrefix('/lalka');
+    const path = '/lalka/path/123/456';
+    const route = new Route('/path/:id/:param2', [(_, next) => { next(); }], { strict: true }).setPrefix('/lalka');
     
     const captures = route.captures(path);
     const params = route.params(captures, {});
     const matches = route.match(path);
     
-    assert.deepStrictEqual(captures, ['123']);
-    assert.deepStrictEqual(params, { id: '123' });
+    assert.deepStrictEqual(captures, ['123', '456']);
+    assert.deepStrictEqual(params, { id: '123', param2: '456' });
     assert.strictEqual(matches, true);
     
     route.param('id', (param, ctx, next) => {
       assert.doesNotThrow(() => {
-        assert.deepStrictEqual(ctx.params, { id: '123' });
+          assert.deepStrictEqual(ctx.params, { id: '123', param2: '456' });
       });
       next();
     });
-    
+
+    const mwWithParamName = (mw => (mw.param = 'param2', mw))((param, ctx, next) => {
+      console.log(param);
+    });
+
+    route.param('id', mwWithParamName);
+
     const context = Object.create(new Context({ path, app: new Application }));
     
     context.params = params;
