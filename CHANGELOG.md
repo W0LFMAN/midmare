@@ -1,3 +1,7 @@
+### v1.4.5
+* Small type fixes
+* Test coverage 100%
+
 ### v1.4.4
 * Removed dist js files from code
 
