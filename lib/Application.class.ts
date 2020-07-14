@@ -18,17 +18,12 @@ export namespace Application {
         protected readonly router: Router.Router;
         protected readonly middleware: Middleware.Middleware[] = [];
         protected handler: <T extends any>(path: Path, data?: T, ctx?: Context.Context) => void;
-        protected appTimeout: NodeJS.Timeout;
-        protected helpers: NodeJS.Dict<Helper> = Object.create(null);
-        public readonly listen: () => Application;
+        protected helpers: NodeJS.Dict<Helper> = {};
 
         constructor(public readonly options: IOptions = {}) {
             super();
             this.router = new Router.Router({} as Router.IOptions);
-            this.context = new Context.Context({ app: this });
-            if(options.withListen) {
-                this.listen = this.init;
-            }
+            this.context = Object.create(new Context.Context({ app: this }));
         }
 
         public init(): Application {
@@ -41,41 +36,29 @@ export namespace Application {
             Object.assign(this.context, this.helpers);
             this.__initialized = true;
             this.emit('initialized');
-
-            if(this.options.withListen) {
-                this.__timeout();
-            }
-
             return this;
         }
 
         public stop(): Application {
             this.__initialized = false;
             this.emit('stop');
-            clearTimeout(this.appTimeout);
             return this;
         }
-
-        protected __timeout = (): void => {
-            this.appTimeout = setTimeout(this.__timeout,1000000000);
-        };
 
         protected execute(ctx: Context.Context, fnWare: Callback): void {
             fnWare(ctx)
                 .then(() => this.emit('end', ctx))
-                .catch((err) => this.emit('error', err));
+                .catch((err) => this.emit('err', err));
         }
 
         protected createContext(path: Path): Context.Context {
-            this.context = Object.assign(
+            return Object.assign(
                 Object.create(this.context),
                 {
                     path,
                     app: this
                 }
             );
-
-            return Object.create(this.context);
         }
 
         protected callback(): Callback {
@@ -88,10 +71,12 @@ export namespace Application {
                     context.__pathStory.add(context.path);
 
                     for(const key in context) {
-                        if(context.hasOwnProperty(key)) {
+                        if (context.hasOwnProperty(key) &&  key !== 'path') {
                             newCtx[key] = context[key];
                         }
                     }
+
+                    newCtx.path = path;
 
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                 }
@@ -125,7 +110,7 @@ export namespace Application {
         }
 
 
-        public helper(name?: string,callback?: Helper, context?: Context.Context): Application {
+        public helper<Context extends any>(name?: string,callback?: Helper, context?: Context): Application {
             callback = typeof name === 'function' ? name : callback;
             name = typeof name === 'string' ? name : callback ? callback.name : undefined;
 
@@ -146,8 +131,9 @@ export namespace Application {
                 let index = -1;
                 return exec(0);
 
-                function exec(i) {
+                function exec(i, err?: Error) {
                     if (i <= index) return Promise.reject(new Error('Function next() called multiple times'));
+                    if(err instanceof Error) return Promise.reject(err);
                     index = i;
                     let fn = arrFn[i];
                     if (i === arrFn.length) fn = next;

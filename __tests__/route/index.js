@@ -34,7 +34,7 @@ describe('Testing `Route` functionality: ', () => {
     });
 
     const mwWithParamName = (mw => (mw.param = 'param2', mw))((param, ctx, next) => {
-      console.log(param);
+      assert.strictEqual(param, '123');
     });
 
     route.param('id', mwWithParamName);

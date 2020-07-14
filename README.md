@@ -31,7 +31,7 @@ but without HTTP Layer.
 ```js
 const {default: mid, Router: { Router }} = require('midmare');
 
-const app = mid(); // or mid({ withListen: true });
+const app = mid();
 
 /*
   You can create your own router
@@ -67,8 +67,9 @@ app.helper(function someHelperName(yourArg1, yourArg2) {
 
 app
     .use(function(ctx, next) {
-      ctx.user = 'Hi MID.'; // Wrong way to save your data, but works in current iteration context.
-      ctx.set('user', 'Hi MID.'); // Best way to save your data
+      // Two ways to set data to context.
+      ctx.user = 'Hi MID.';
+      ctx.set('user', 'Hi MID.');
       next();
     })
     .process('/', function(ctx) {
@@ -93,7 +94,7 @@ app
     // Adding router to chain
     .use(someRouter.routes());
 
-app.init(); // or `app.listen()` if you will use option `withListen`;
+app.init();
 
 /*
   `init` method ignore creating a waiter(timeout) for your functionality.

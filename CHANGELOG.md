@@ -1,3 +1,12 @@
+### v1.4.6
+* Fixed errors handing
+* to listen errors on app use `app.on('err', (err) => console.error(err)`
+* Fixes at tests
+* Fixes with context
+* Removed `listen` method due to lack of need
+* Removed idea of setTimeout endless cycle.
+* Small fixes of types.
+
 ### v1.4.5
 * Small type fixes
 * Test coverage 100%

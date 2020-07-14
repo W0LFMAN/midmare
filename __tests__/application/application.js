@@ -104,7 +104,7 @@ describe('Testing application object: ', () => {
     app
       .send('/route/1', null);
     
-    app.on('error', (err) => {
+    app.on('err', (err) => {
       assert.throws(() => {
         if(err) {
           throw err;
@@ -141,7 +141,7 @@ describe('Testing application object: ', () => {
     });
   });
   
-  it('should send from route to route and don\'t use middleware(s) again.', () => {
+  it('should send from route to route and don\'t use middleware(s) again.', (done) => {
     const app = mid();
     const result = [];
     
@@ -159,20 +159,11 @@ describe('Testing application object: ', () => {
       }).init();
     
     app.send('/app/send', null);
-    
-    assert.deepStrictEqual(result, ['middleware', '/app/send', '/route/send']);
-  });
   
-  it('should not terminate process after initialize', (done) => {
-    const app = mid({withListen: true}).listen();
-    setTimeout(() => {
-      app.stop(); // Stopping timeout inside an application
-      done();
-    }, 100);
+    assert.deepStrictEqual(result, ['middleware', '/app/send', '/route/send']);
     
-    assert.doesNotThrow(() => {
-      app.send('*', null);
-    }, Error)
+    app.on('stop', done);
+    app.stop();
   });
   
   it('route context should save vars when sending inside routes', (done) => {
@@ -194,37 +185,28 @@ describe('Testing application object: ', () => {
       }).init();
     
     app.on('end', () => done());
-    app.on('error', err => done(err));
+    app.on('err', err => done(err));
     
     app.send('/app/send', 'SomeOloloData');
   });
   
-  it('should recreate timeout', (done) => {
-    const app = mid({withListen: true}).listen();
-    
-    const old = app.appTimeout;
-    app.__timeout();
-    const current = app.__timeout();
-    assert.notStrictEqual(old, current);
-    
-    setTimeout(() => {
-      app.stop();
-      done();
-    }, 100);
-  });
-  
-  it('should catch error', (done) => {
+  it('should catch error', () => {
     const app = mid();
     
-    app.use((_, next) => {
-      throw new Error;
-    }).init();
+    app
+      .use(async (_, next) => {
+        try {
+          await next();
+        } catch (e) {
+          assert.throws(() => {
+            throw e;
+          }, Error);
+        }
+      })
+      .use((_, next) => {
+        throw new Error('Ololo');
+      }).init();
     
-    app.on('error', err => {
-      if (err) {
-        done()
-      }
-    });
     
     app.send('*', null);
     
@@ -263,8 +245,7 @@ describe('Testing application object: ', () => {
   
   it('helper must be function', () => {
     const app = mid();
-    const h = function () {
-    };
+    const h = function () {};
     
     app.helper('h', h, {});
     app.helper('h1', h);
@@ -275,4 +256,26 @@ describe('Testing application object: ', () => {
     
   });
   
+  it('next function should handle error', () => {
+    const app = mid();
+    
+    app
+      .use( async(ctx, next) => {
+        try {
+          await next();
+        } catch(err) {
+          assert.throws(() => {
+            throw err;
+          })
+        }
+      })
+      .use(async (_, next) => {
+          await next(new Error('Next error'));
+      })
+      .init();
+    
+    app.send('*', null);
+  });
 });
+
+process.on('UnhandledPromiseRejectionWarning', (e) => { throw e });
