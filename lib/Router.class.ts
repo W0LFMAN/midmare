@@ -116,7 +116,7 @@ export namespace Router {
             return matched;
         }
 
-        public param(param: string, middleware: (...args: any) => any): Router {
+        public param(param: string, middleware: (...args: any[]) => any): Router {
             this.params[param] = middleware;
             for (let i = 0; i < this.stack.length; i++) {
                 const route = this.stack[i];

@@ -40,7 +40,7 @@ export namespace Context {
         }
 
         public send<T>(path: Router.Path, data: T): Context {
-            this.options.app.send(path, data, this);
+            this.app.send(path, data, this);
             return this;
         }
     }
