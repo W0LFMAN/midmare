@@ -1,3 +1,6 @@
+### v1.4.7
+* Added Error handling when function sync or async.
+
 ### v1.4.6
 * Fixed errors handing
 * to listen errors on app use `app.on('err', (err) => console.error(err)`

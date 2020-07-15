@@ -190,7 +190,29 @@ describe('Testing application object: ', () => {
     app.send('/app/send', 'SomeOloloData');
   });
   
-  it('should catch error', () => {
+  it('should catch sync error', () => {
+    const app = mid();
+    
+    app
+      .use((_, next) => {
+        try {
+          next();
+        } catch (e) {
+          assert.throws(() => {
+            throw e;
+          }, Error);
+        }
+      })
+      .use((_, next) => {
+        throw new Error('Ololo');
+      }).init();
+    
+    
+    app.send('*', null);
+    
+  });
+  
+  it('should catch async error', () => {
     const app = mid();
     
     app
@@ -256,7 +278,7 @@ describe('Testing application object: ', () => {
     
   });
   
-  it('next function should handle error', () => {
+  it('next function should handle sync error', () => {
     const app = mid();
     
     app
@@ -269,13 +291,32 @@ describe('Testing application object: ', () => {
           })
         }
       })
-      .use(async (_, next) => {
-          await next(new Error('Next error'));
+      .use( (_, next) => {
+         next(new Error('Next error'));
+      })
+      .init();
+    
+    app.send('*', null);
+  });
+  
+  it('next function should handle async error', () => {
+    const app = mid();
+    
+    app
+      .use( async(ctx, next) => {
+        try {
+          await next();
+        } catch(err) {
+          assert.throws(() => {
+            throw err;
+          })
+        }
+      })
+      .use( async (_, next) => {
+        await next(new Error('Next error'));
       })
       .init();
     
     app.send('*', null);
   });
 });
-
-process.on('UnhandledPromiseRejectionWarning', (e) => { throw e });

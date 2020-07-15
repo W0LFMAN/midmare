@@ -133,7 +133,13 @@ export namespace Application {
 
                 function exec(i, err?: Error) {
                     if (i <= index) return Promise.reject(new Error('Function next() called multiple times'));
-                    if(err instanceof Error) return Promise.reject(err);
+                    if(err instanceof Error) {
+                        if(arrFn[i - 1] && arrFn[i - 1].constructor.name === 'AsyncFunction') {
+                            return Promise.reject(err);
+                        } else {
+                            throw err;
+                        }
+                    }
                     index = i;
                     let fn = arrFn[i];
                     if (i === arrFn.length) fn = next;
@@ -149,7 +155,11 @@ export namespace Application {
                         return Promise.resolve(fn(context, next));
                     } catch (err) {
                         context.__pathStory.clear();
-                        return Promise.reject(err);
+                        if(arrFn[i - 1] && arrFn[i - 1].constructor.name === 'AsyncFunction') {
+                            return Promise.reject(err);
+                        } else {
+                            throw err;
+                        }
                     }
                 }
             }
