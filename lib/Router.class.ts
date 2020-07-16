@@ -61,9 +61,11 @@ export namespace Router {
         public register(path: Path, middleware: Middleware.Middleware | Middleware.Middleware[], options: IOptions): Route.Route {
             const stack = this.stack;
             options = Object.assign({}, options);
+            const isMiddleware: boolean = !options.end ? !!options.end : true;
+
 
             const route = new Route.Route(path, middleware, {
-                end: !options.end ? options.end : true,
+                end: isMiddleware,
                 name: options.name,
                 sensitive: options.sensitive || this.options.sensitive || false,
                 strict: options.strict || this.options.strict || false,
@@ -71,7 +73,7 @@ export namespace Router {
                 ignoreCaptures: options.ignoreCaptures
             });
 
-            if (this.options.prefix) {
+            if (!isMiddleware && this.options.prefix) {
                 route.setPrefix(this.options.prefix);
             }
 
