@@ -1,3 +1,10 @@
+### v1.4.9
+* Fixed cycle handling
+* Rewrited tests
+
+### v1.4.8
+* Small fix router prefixes.
+
 ### v1.4.7
 * Added Error handling when function sync or async.
 

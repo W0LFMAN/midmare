@@ -40,7 +40,7 @@ describe('Testing `Route` functionality: ', () => {
     route.param('id', mwWithParamName);
 
     const context = Object.create(new Context({ path, app: new Application }));
-    
+    context.__pathStory = new Set;
     context.params = params;
     
     Application.createCompose(route.stack)(context).catch(err => console.log(err));

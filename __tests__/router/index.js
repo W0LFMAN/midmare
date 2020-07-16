@@ -15,8 +15,11 @@ describe('Testing `Router` functionality: ', () => {
       result.push(2);
       next();
     }]);
+  
+    const context = new Context({path: '/', app: new Application});
+    context.__pathStory = new Set;
     
-    router.routes()(Object.create(new Context({app: new Application, path: '/'})));
+    router.routes()(Object.create(context));
     
     assert.deepStrictEqual(result, [1, 2]);
   });
@@ -71,11 +74,12 @@ describe('Testing `Router` functionality: ', () => {
   
     const composed = router.routes();
     
-    composed(Object.create(new Context({app, path: '/prefix/route/123'})), () => {}); // `app.send` analogue
-    composed(Object.create(new Context({app, path: '/prefix/sub-route/2'})), () => {});
-    composed(Object.create(new Context({app, path: '/prefix/sub-route/router'})), () => {});
-    composed(Object.create(new Context({app, path: '/prefix/some-route/3'})), () => {});
-    composed(Object.create(new Context({app, path: '/ololo'})), () => {});
+    
+    composed(Object.create(Object.assign(new Context({app, path: '/prefix/route/123'}), { __pathStory: new Set })), () => {}); // `app.send` analogue
+    composed(Object.create(Object.assign(new Context({app, path: '/prefix/sub-route/2'}), { __pathStory: new Set })), () => {});
+    composed(Object.create(Object.assign(new Context({app, path: '/prefix/sub-route/router'}), { __pathStory: new Set })), () => {});
+    composed(Object.create(Object.assign(new Context({app, path: '/prefix/some-route/3'}), { __pathStory: new Set })), () => {});
+    composed(Object.create(Object.assign(new Context({app, path: '/ololo'}), { __pathStory: new Set })), () => {});
 
     assert.deepStrictEqual(result,['/prefix/route/123', '/prefix/sub-route/2', '/prefix/sub-route/router', '/prefix/some-route/3']);
   });
@@ -88,8 +92,10 @@ describe('Testing `Router` functionality: ', () => {
         assert.strictEqual(ctx.params.parameter, 'some-val');
       });
     });
+    const context = new Context({path: '/', app: new Application});
+    context.__pathStory = new Set;
     
-    router.routes()(Object.create(new Context({app: new Application, path: '/some-val'})), () => {});
+    router.routes()(context, () => {});
   });
   
   it('should use middleware with path', () => {
@@ -105,8 +111,8 @@ describe('Testing `Router` functionality: ', () => {
     
     const composed = router.routes();
     
-    composed(Object.create(new Context({app: new Application, path: '/route/1'}))); // send analogue
-    composed(Object.create(new Context({app: new Application, path: '/route/2'})));
+    composed(Object.create(Object.assign(new Context({app: new Application, path: '/route/1'}), { __pathStory: new Set }))); // send analogue
+    composed(Object.create(Object.assign(new Context({app: new Application, path: '/route/2'}), { __pathStory: new Set })));
     
     assert.deepStrictEqual(result,['/route/1', '/route/2']);
   });

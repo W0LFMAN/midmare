@@ -37,8 +37,10 @@ describe('Testing application object: ', () => {
         next();
       },
     ];
-    
-    Application.createCompose(wares)(new Context({path: '/', app: new Application}));
+  
+    const context = new Context({path: '/', app: new Application});
+    context.__pathStory = new Set;
+    Application.createCompose(wares)(context);
     
     assert.deepStrictEqual(result, [1, 2, 3, 4, 5, 6, 7]);
   });
@@ -54,6 +56,8 @@ describe('Testing application object: ', () => {
   });
   
   it('should catch `next` called multiple times', () => {
+    const context = new Context({path: '/', app: new Application});
+    context.__pathStory = new Set;
     Application.createCompose([(_, next) => {
           next();
           next().catch(err => {
@@ -61,7 +65,7 @@ describe('Testing application object: ', () => {
               throw err;
             });
           });
-    }])(new Context({path: '/', app: new Application}));
+    }])(context);
   });
   
   it('should send to all routes', () => {

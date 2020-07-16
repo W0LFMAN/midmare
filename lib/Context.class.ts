@@ -18,7 +18,7 @@ export namespace Context {
         public _matchedRoute: string;
         public _matchedRouteName: string;
         public app: Application.Application;
-        public __pathStory: Set<string> = new Set;
+        public __pathStory: Set<string>;
         [key: string]: any;
 
         constructor(protected readonly options: IOptions) {

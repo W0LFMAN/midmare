@@ -56,7 +56,8 @@ export namespace Application {
                 Object.create(this.context),
                 {
                     path,
-                    app: this
+                    app: this,
+                    __pathStory: new Set
                 }
             );
         }
