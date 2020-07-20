@@ -1,5 +1,8 @@
+### v1.4.11
+* Fixed use of path history (cycle handling check)
+
 ### v1.4.10
-* Upgraded
+* Upgraded types, Context implementation
 
 ### v1.4.9
 * Fixed cycle handling
