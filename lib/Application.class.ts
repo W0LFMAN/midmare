@@ -77,7 +77,10 @@ export namespace Application {
                         }
                     }
 
-                    newCtx.__pathStory.add(context.path);
+                    if(context instanceof Context.Context) {
+                        newCtx.__pathStory.add(context.path);
+                    }
+
                     newCtx.path = path;
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                 }
