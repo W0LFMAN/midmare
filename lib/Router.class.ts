@@ -63,7 +63,7 @@ export namespace Router {
             options = Object.assign({}, options);
 
             const route = new Route.Route(path, middleware, {
-                end: !options.end ? !!options.end : true,
+                end: options.end === false ? options.end : true,
                 name: options.name,
                 sensitive: options.sensitive || this.options.sensitive || false,
                 strict: options.strict || this.options.strict || false,
