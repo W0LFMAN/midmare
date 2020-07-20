@@ -7,6 +7,7 @@ export namespace Middleware {
         param?: string;
         router? : Router.Router;
         method?: 'get' | 'post' | 'put' | 'patch' | 'delete' | 'options' | 'head' | 'trace' | 'connect' | string;
+        [key: string]: any;
     }
 
     export interface NextCallback {
