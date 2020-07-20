@@ -1,3 +1,6 @@
+### v1.4.16
+* Application && Router now can `use` Router class instance as argument.
+
 ### v1.4.15
 * Fixed app handler type.
 
