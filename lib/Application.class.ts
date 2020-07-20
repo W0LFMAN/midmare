@@ -33,7 +33,7 @@ export namespace Application {
             }
 
             if(!this.handler) this.reload();
-            this.use(this.router.routes());
+            this.use(this.router);
             Object.assign(this.context, this.helpers);
             this.__initialized = true;
             this.emit('initialized');
@@ -95,7 +95,8 @@ export namespace Application {
             return this;
         }
 
-        public use(fn: Callback): Application {
+        public use(fn: Callback | Router.Router): Application {
+            if(fn instanceof Router.Router) return this.use(fn.routes());
             if (typeof fn !== 'function') throw new TypeError('Middleware must be a function.');
             this.middleware.push(fn);
             return this;

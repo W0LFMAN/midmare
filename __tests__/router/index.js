@@ -70,7 +70,7 @@ describe('Testing `Router` functionality: ', () => {
     
     router.use(subRouter1.routes());
     router.use('/sub-route/router', subRouter2.routes());
-    router.use(subRouter3.routes());
+    router.use(subRouter3);
   
     const composed = router.routes();
     

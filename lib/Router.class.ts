@@ -10,9 +10,11 @@ export namespace Router {
 
         constructor(protected readonly options: IOptions = {}) {}
 
-        public use(path: Path | Middleware.Middleware | Middleware.Middleware[] | null, middleware?: Middleware.Middleware | Middleware.Middleware[]): Router {
-            middleware = typeof path === 'function' ? path : middleware;
+        public use(path: Path | Middleware.Middleware | Middleware.Middleware[] | Router, middleware?: Middleware.Middleware | Middleware.Middleware[] | Router): Router {
             const hasPath = typeof path === 'string';
+            middleware = hasPath ? middleware as Middleware.Middleware : path as Middleware.Middleware;
+
+            if(middleware! instanceof Router) return this.use(middleware.routes());
 
             middleware = Array.isArray(middleware) ? middleware as Middleware.Middleware[] : [middleware] as Middleware.Middleware[];
 
