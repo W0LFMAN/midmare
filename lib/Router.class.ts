@@ -14,7 +14,7 @@ export namespace Router {
             middleware = typeof path === 'function' ? path : middleware;
             const hasPath = typeof path === 'string';
 
-            middleware = Array.isArray(middleware) ? middleware : [middleware as Middleware.Middleware];
+            middleware = Array.isArray(middleware) ? middleware as Middleware.Middleware[] : [middleware] as Middleware.Middleware[];
 
             if (middleware.some(fn => typeof fn !== "function")) throw new TypeError('Middleware should be function or array of functions.');
 

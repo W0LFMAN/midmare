@@ -5,6 +5,7 @@ import {Middleware} from "./Middleware.class";
 
 export namespace Application {
     import Path = Router.Path;
+    import Dict = NodeJS.Dict;
 
     export type Callback = (...args: any[]) => any;
 
@@ -17,8 +18,8 @@ export namespace Application {
         protected context: Context.Context;
         protected readonly router: Router.Router;
         protected readonly middleware: Middleware.Middleware[] = [];
-        protected handler: <T extends any>(path: Path, data?: T, ctx?: Context.Context) => void;
         protected helpers: NodeJS.Dict<Helper> = {};
+        public handler: <T extends any>(path: Path, data?: T, ctx?: Context.Context) => void;
 
         constructor(public readonly options: IOptions = {}) {
             super();
@@ -48,7 +49,7 @@ export namespace Application {
         protected execute(ctx: Context.Context, fnWare: Callback): void {
             fnWare(ctx)
                 .then(() => this.emit('end', ctx))
-                .catch((err) => this.emit('err', err));
+                .catch((err) => this.emit('error', err));
         }
 
         protected createContext(path: Path): Context.Context {
@@ -65,8 +66,9 @@ export namespace Application {
         protected callback(): Callback {
             let mw = Application.createCompose(this.middleware);
 
-            return (path: Path, data: any, context: Context.Context) => {
+            return (path: Path, data: any, context?: Context.Context | Dict<any>) => {
                 const newCtx = this.createContext(path);
+                this.emit(path, Context.Context.clone(newCtx));
 
                 if (context) {
                     context.__pathStory.add(context.path);
@@ -78,11 +80,10 @@ export namespace Application {
                     }
 
                     newCtx.path = path;
-
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                 }
 
-                newCtx.set('data', data);
+                newCtx.data = data;
                 this.execute(newCtx, mw);
             };
         }
@@ -93,7 +94,7 @@ export namespace Application {
         }
 
         public use(fn: Callback): Application {
-            if (typeof fn !== 'function') throw new TypeError('middleware must be a function.');
+            if (typeof fn !== 'function') throw new TypeError('Middleware must be a function.');
             this.middleware.push(fn);
             return this;
         }
@@ -110,7 +111,6 @@ export namespace Application {
             return this;
         }
 
-
         public helper<Context extends any>(name?: string,callback?: Helper, context?: Context): Application {
             callback = typeof name === 'function' ? name : callback;
             name = typeof name === 'string' ? name : callback ? callback.name : undefined;
@@ -121,7 +121,6 @@ export namespace Application {
             this.helpers[name] = !context ? callback : callback.bind(context);
             return this;
         }
-
 
         public static createCompose(arrFn: Callback[]): Callback {
             if (!Array.isArray(arrFn)) throw new TypeError('Argument should be an array');

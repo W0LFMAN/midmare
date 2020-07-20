@@ -2,12 +2,13 @@ import {Application} from "./Application.class";
 import {Middleware} from "./Middleware.class";
 import { Router } from "./Router.class";
 import { Route } from "./Route.class";
+import { EventEmitter } from "events";
 
 export namespace Context {
     import NextCallback = Middleware.NextCallback;
     import Dict = NodeJS.Dict;
 
-    export class Context implements IContext {
+    export class Context extends EventEmitter implements IContext {
         public params: Dict<string>;
         public captures: RegExpMatchArray;
         public matched: Route.Route[];
@@ -22,6 +23,7 @@ export namespace Context {
         [key: string]: any;
 
         constructor(protected readonly options: IOptions) {
+            super();
             this.path = this.options.path;
             this.app = this.options.app;
         }
@@ -36,12 +38,24 @@ export namespace Context {
         }
 
         public error(err: Error): void {
-            throw err;
+            this.app.emit('error', err);
         }
 
         public send<T>(path: Router.Path, data: T): Context {
             this.app.send(path, data, this);
             return this;
+        }
+
+        public static clone(ctx: Context): Context {
+            const context = Object.create(new Context(ctx.options));
+
+            for(const key in ctx) {
+                if(ctx.hasOwnProperty(key)) {
+                    context[key] = ctx[key];
+                }
+            }
+
+            return context;
         }
     }
 

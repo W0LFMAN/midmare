@@ -108,7 +108,7 @@ describe('Testing application object: ', () => {
     app
       .send('/route/1', null);
     
-    app.on('err', (err) => {
+    app.on('error', (err) => {
       assert.throws(() => {
         if(err) {
           throw err;
@@ -189,7 +189,7 @@ describe('Testing application object: ', () => {
       }).init();
     
     app.on('end', () => done());
-    app.on('err', err => done(err));
+    app.on('error', err => done(err));
     
     app.send('/app/send', 'SomeOloloData');
   });

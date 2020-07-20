@@ -1,3 +1,6 @@
+### v1.4.10
+* Upgraded
+
 ### v1.4.9
 * Fixed cycle handling
 * Rewrited tests
