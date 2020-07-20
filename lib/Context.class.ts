@@ -22,7 +22,7 @@ export namespace Context {
         public __pathStory: Set<string>;
         [key: string]: any;
 
-        constructor(protected readonly options: IOptions) {
+        constructor(public readonly options: IOptions) {
             super();
             this.path = this.options.path;
             this.app = this.options.app;
