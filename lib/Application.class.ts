@@ -19,7 +19,7 @@ export namespace Application {
         protected readonly router: Router.Router;
         protected readonly middleware: Middleware.Middleware[] = [];
         protected helpers: NodeJS.Dict<Helper> = {};
-        public handler: <T extends any>(path: Path, data?: T, ctx?: Context.Context) => void;
+        public handler: <T extends any>(path: Path, data?: T, ctx?: Context.Context | Dict<any>) => void;
 
         constructor(public readonly options: IOptions = {}) {
             super();
