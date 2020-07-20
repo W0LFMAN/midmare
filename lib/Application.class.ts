@@ -71,14 +71,13 @@ export namespace Application {
                 this.emit(path, Context.Context.clone(newCtx));
 
                 if (context) {
-                    context.__pathStory.add(context.path);
-
                     for(const key in context) {
                         if (context.hasOwnProperty(key) &&  key !== 'path') {
                             newCtx[key] = context[key];
                         }
                     }
 
+                    newCtx.__pathStory.add(context.path);
                     newCtx.path = path;
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                 }
