@@ -1,3 +1,6 @@
+### v1.4.12
+* Context options to public property
+
 ### v1.4.11
 * Fixed use of path history (cycle handling check)
 
