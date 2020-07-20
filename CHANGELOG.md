@@ -1,3 +1,6 @@
+### v1.4.15
+* Fixed app handler type.
+
 ### v1.4.14
 * Fixed route matching.
 
