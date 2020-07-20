@@ -1,3 +1,6 @@
+### v1.4.13
+* Fixed dict `path` issues while creating context on `send`
+
 ### v1.4.12
 * Context options to public property
 
