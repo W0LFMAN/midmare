@@ -19,7 +19,7 @@ export namespace Context {
         public _matchedRoute: string;
         public _matchedRouteName: string;
         public app: Application.Application;
-        public __pathStory: Set<string>;
+        public __story: Set<string>;
         [key: string]: any;
 
         constructor(public readonly options: IOptions) {
