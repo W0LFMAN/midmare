@@ -77,7 +77,7 @@ export namespace Application {
                         }
                     }
 
-                    if(context instanceof Context.Context && Array.from(newCtx.__story).pop() !== context.path) {
+                    if(context instanceof Context.Context) {
                         newCtx.__story = new Set(context.__story);
                         newCtx.__story.add(context.path);
                     }

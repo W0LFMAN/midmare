@@ -1,3 +1,6 @@
+### v1.4.18
+* Removed redundant code.
+
 ### v1.4.17
 * Improved path story for cyclic handling control.
 
