@@ -39,7 +39,7 @@ describe('Testing application object: ', () => {
     ];
   
     const context = new Context({path: '/', app: new Application});
-    context.__pathStory = new Set;
+    context.__story = new Set;
     Application.createCompose(wares)(context);
     
     assert.deepStrictEqual(result, [1, 2, 3, 4, 5, 6, 7]);
@@ -57,7 +57,7 @@ describe('Testing application object: ', () => {
   
   it('should catch `next` called multiple times', () => {
     const context = new Context({path: '/', app: new Application});
-    context.__pathStory = new Set;
+    context.__story = new Set;
     Application.createCompose([(_, next) => {
           next();
           next().catch(err => {

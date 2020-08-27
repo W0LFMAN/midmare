@@ -58,7 +58,7 @@ export namespace Application {
                 {
                     path,
                     app: this,
-                    __pathStory: new Set
+                    __story: new Set
                 }
             );
         }
@@ -68,23 +68,23 @@ export namespace Application {
 
             return (path: Path, data: any, context?: Context.Context | Dict<any>) => {
                 const newCtx = this.createContext(path);
-                this.emit(path, Context.Context.clone(newCtx));
+                this.emit(path, Context.Context.clone(newCtx), context);
 
                 if (context) {
                     for(const key in context) {
-                        if (context.hasOwnProperty(key) &&  key !== 'path') {
+                        if (context.hasOwnProperty(key) && !['path', '__story'].includes(key)) {
                             newCtx[key] = context[key];
                         }
                     }
 
-                    if(context instanceof Context.Context) {
-                        newCtx.__pathStory.add(context.path);
+                    if(context instanceof Context.Context && Array.from(newCtx.__story).pop() !== context.path) {
+                        newCtx.__story = new Set(context.__story);
+                        newCtx.__story.add(context.path);
                     }
 
                     newCtx.path = path;
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                 }
-
                 newCtx.data = data;
                 this.execute(newCtx, mw);
             };
@@ -147,17 +147,17 @@ export namespace Application {
                     let fn = arrFn[i];
                     if (i === arrFn.length) fn = next;
                     if (!fn) {
-                        context.__pathStory.clear();
+                        context.__story.clear();
                         return Promise.resolve();
                     }
                     try {
-                        if(!context.app.options.ignoreCyclicError && context.__pathStory.has(context.path))
+                        if(!context.app.options.ignoreCyclicError && context.__story.has(context.path))
                             return Promise.reject(new Error('Cyclic calling with same `path`: `'.concat(context.path, '`, be careful')));
                         const next = exec.bind(null, i + 1);
                         context.next = next;
                         return Promise.resolve(fn(context, next));
                     } catch (err) {
-                        context.__pathStory.clear();
+                        context.__story.clear();
                         if(arrFn[i - 1] && arrFn[i - 1].constructor.name === 'AsyncFunction') {
                             return Promise.reject(err);
                         } else {

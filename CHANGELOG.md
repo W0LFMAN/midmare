@@ -1,3 +1,6 @@
+### v1.4.17
+* Improved path story for cyclic handling control.
+
 ### v1.4.16
 * Application && Router now can `use` Router class instance as argument.
 

@@ -17,7 +17,7 @@ describe('Testing `Router` functionality: ', () => {
     }]);
   
     const context = new Context({path: '/', app: new Application});
-    context.__pathStory = new Set;
+    context.__story = new Set;
     
     router.routes()(Object.create(context));
     
@@ -75,11 +75,11 @@ describe('Testing `Router` functionality: ', () => {
     const composed = router.routes();
     
     
-    composed(Object.create(Object.assign(new Context({app, path: '/prefix/route/123'}), { __pathStory: new Set })), () => {}); // `app.send` analogue
-    composed(Object.create(Object.assign(new Context({app, path: '/prefix/sub-route/2'}), { __pathStory: new Set })), () => {});
-    composed(Object.create(Object.assign(new Context({app, path: '/prefix/sub-route/router'}), { __pathStory: new Set })), () => {});
-    composed(Object.create(Object.assign(new Context({app, path: '/prefix/some-route/3'}), { __pathStory: new Set })), () => {});
-    composed(Object.create(Object.assign(new Context({app, path: '/ololo'}), { __pathStory: new Set })), () => {});
+    composed(Object.create(Object.assign(new Context({app, path: '/prefix/route/123'}), { __story: new Set })), () => {}); // `app.send` analogue
+    composed(Object.create(Object.assign(new Context({app, path: '/prefix/sub-route/2'}), { __story: new Set })), () => {});
+    composed(Object.create(Object.assign(new Context({app, path: '/prefix/sub-route/router'}), { __story: new Set })), () => {});
+    composed(Object.create(Object.assign(new Context({app, path: '/prefix/some-route/3'}), { __story: new Set })), () => {});
+    composed(Object.create(Object.assign(new Context({app, path: '/ololo'}), { __story: new Set })), () => {});
 
     assert.deepStrictEqual(result,['/prefix/route/123', '/prefix/sub-route/2', '/prefix/sub-route/router', '/prefix/some-route/3']);
   });
@@ -93,7 +93,7 @@ describe('Testing `Router` functionality: ', () => {
       });
     });
     const context = new Context({path: '/', app: new Application});
-    context.__pathStory = new Set;
+    context.__story = new Set;
     
     router.routes()(context, () => {});
   });
@@ -111,8 +111,8 @@ describe('Testing `Router` functionality: ', () => {
     
     const composed = router.routes();
     
-    composed(Object.create(Object.assign(new Context({app: new Application, path: '/route/1'}), { __pathStory: new Set }))); // send analogue
-    composed(Object.create(Object.assign(new Context({app: new Application, path: '/route/2'}), { __pathStory: new Set })));
+    composed(Object.create(Object.assign(new Context({app: new Application, path: '/route/1'}), { __story: new Set }))); // send analogue
+    composed(Object.create(Object.assign(new Context({app: new Application, path: '/route/2'}), { __story: new Set })));
     
     assert.deepStrictEqual(result,['/route/1', '/route/2']);
   });
