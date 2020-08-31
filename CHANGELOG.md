@@ -1,3 +1,6 @@
+### v1.4.19
+* Fixed error catch at Router class
+
 ### v1.4.18
 * Removed redundant code.
 
