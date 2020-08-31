@@ -161,7 +161,7 @@ export namespace Router {
                     return memo.concat(route.stack);
                 }, [] as Middleware.Middleware[]);
 
-                return Application.Application.createCompose(routeChain)(ctx, next).catch(ctx.error);
+                return Application.Application.createCompose(routeChain)(ctx, next).catch((err) => ctx.error(err));
             };
 
             dispatch.router = this;
