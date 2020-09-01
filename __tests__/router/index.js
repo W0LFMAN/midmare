@@ -116,4 +116,27 @@ describe('Testing `Router` functionality: ', () => {
     
     assert.deepStrictEqual(result,['/route/1', '/route/2']);
   });
+  
+  it('should emit error on application through router', done => {
+    const router = new Router();
+  
+    router.process('/', async ctx => {
+      throw new Error('ctx.error');
+    });
+    
+    const app = new Application;
+    const context = new Context({path: '/', app });
+    context.__story = new Set;
+  
+    router.routes()(Object.create(context));
+  
+    app.on('error', err => {
+      assert.throws(() => {
+        if (err) {
+          throw err;
+        }
+      }, Error);
+      done();
+    });
+  });
 });

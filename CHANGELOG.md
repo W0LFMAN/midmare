@@ -1,3 +1,7 @@
+### v1.5.0
+* Added new methods `Application#set` & `Application#get` to set data to global context.
+* Extended tests
+
 ### v1.4.19
 * Fixed error catch at Router class
 
