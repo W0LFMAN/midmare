@@ -40,6 +40,15 @@ export namespace Application {
             return this;
         }
 
+        public get<T>(key: string): T  {
+            return this.context[key];
+        }
+
+        public set<T>(key: string, value: T): T  {
+            this.context[key] = value;
+            return value;
+        }
+
         public stop(): Application {
             this.__initialized = false;
             this.emit('stop');

@@ -5,11 +5,11 @@ describe('Testing application context: ',  () => {
   const first = mid();
   const second = mid();
   
-  first.context.someVariable = 'Hello there.';
+  first.set('someVariable', 'Hello there.');
   
   it('should have global appFirst property - `someVariable`', () => {
     first.use((ctx, next) => {
-      assert.strictEqual(ctx.someVariable, 'Hello there.');
+      assert.strictEqual(ctx.app.get('someVariable'), 'Hello there.');
       next();
     }).init();
     
