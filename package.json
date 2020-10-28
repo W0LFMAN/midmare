@@ -1,6 +1,6 @@
 {
   "name": "midmare",
-  "version": "1.5.0",
+  "version": "1.5.1",
   "description": "program functional router",
   "main": "dist/index.js",
   "scripts": {
@@ -8,7 +8,8 @@
     "lint": "eslint --config .eslintrc.json",
     "fix": "eslint --config .eslintrc.json --fix",
     "test": "jest __tests__/",
-    "coverage": "jest __tests__/ --coverage --collectCoverageFrom=dist/**/*.js --collectCoverageFrom=!dist/index.js"
+    "coverage": "jest __tests__/ --coverage --collectCoverageFrom=dist/**/*.js --collectCoverageFrom=!dist/index.js",
+    "pre": "npm run lint && npm run compile && npm run coverage"
   },
   "repository": {
     "type": "git",

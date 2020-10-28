@@ -171,9 +171,9 @@ export namespace Router {
 
         public process(name?: string, path?: Path, middleware?: Middleware.Middleware | Middleware.Middleware[]): Router {
             if (typeof path === "string") {
-                middleware = Array.prototype.slice.call(arguments, 2);
+                middleware = Array.prototype.slice.call(arguments, 2).flat();
             } else {
-                middleware = Array.prototype.slice.call(arguments, 1);
+                middleware = Array.prototype.slice.call(arguments, 1).flat();
                 path = name;
                 name = '';
             }
