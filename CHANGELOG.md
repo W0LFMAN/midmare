@@ -1,3 +1,6 @@
+### v1.5.1
+* Fixed middleware processing issues (Array#flat)
+
 ### v1.5.0
 * Added new methods `Application#set` & `Application#get` to set data to global context.
 * Extended tests
