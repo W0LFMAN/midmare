@@ -1,3 +1,6 @@
+
+* Fixed dependabot messages
+
 ### v1.5.1
 * Fixed middleware processing issues (Array#flat)
 
