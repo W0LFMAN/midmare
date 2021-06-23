@@ -1,6 +1,6 @@
 {
   "name": "midmare",
-  "version": "1.5.2",
+  "version": "1.6.0",
   "description": "program functional router",
   "main": "dist/index.js",
   "scripts": {
