@@ -1,6 +1,6 @@
 [![npm version](https://badge.fury.io/js/midmare.svg)](https://www.npmjs.com/midmare)
-[![Build Status](https://travis-ci.com/parimatch-tech/midmare.svg?branch=master)](https://travis-ci.com/parimatch-tech/midmare)
-[![codecov.io](https://codecov.io/github/parimatch-tech/midmare/coverage.svg?branch=master)](https://codecov.io/github/parimatch-tech/midmare?branch=master)
+[![Build Status](https://travis-ci.com/W0LFMAN/midmare.svg?branch=master)](https://travis-ci.com/W0LFMAN/midmare)
+[![codecov.io](https://codecov.io/github/W0LFMAN/midmare/coverage.svg?branch=master)](https://codecov.io/github/W0LFMAN/midmare?branch=master)
 
 # MIDMARE library
 
