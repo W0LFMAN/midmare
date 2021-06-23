@@ -41,9 +41,8 @@ export namespace Context {
             this.app.emit('error', err);
         }
 
-        public send<T>(path: Router.Path, data: T): Context {
-            this.app.send(path, data, this);
-            return this;
+        public send<T, Result>(path: Router.Path, data: T): Promise<Result> {
+            return this.app.send(path, data, this);
         }
 
         public static clone(ctx: Context): Context {

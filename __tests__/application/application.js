@@ -87,10 +87,9 @@ describe('Testing application object: ', () => {
         result.push(ctx.path);
       }).init();
     
-    app
-      .send('/route/1', null)
-      .send('/route/2', null)
-      .send('/route/3', null);
+    app.send('/route/1', null)
+    app.send('/route/2', null)
+    app.send('/route/3', null);
     
     assert.deepStrictEqual(result, ['middleware', '/route/1', 'middleware', '/route/2', 'middleware', '/route/3']);
   });

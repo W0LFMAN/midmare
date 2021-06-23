@@ -1,4 +1,8 @@
+### v1.6.0
+* Feature: If route returns some data you can `const dataFromAnotherRoute = await ctx.send('/route/send', {})` to get result.
+* Fixed README bages & tests
 
+### v1.5.2
 * Fixed dependabot messages
 
 ### v1.5.1

@@ -19,7 +19,10 @@ export namespace Application {
         protected readonly router: Router.Router;
         protected readonly middleware: Middleware.Middleware[] = [];
         protected helpers: NodeJS.Dict<Helper> = {};
-        public handler: <T extends any>(path: Path, data?: T, ctx?: Context.Context | Dict<any>) => void;
+        public handler: <T extends any, Result>(
+            path: Path, data?: T,
+            ctx?: Context.Context | Dict<any>
+        ) => Promise<Result>;
 
         constructor(public readonly options: IOptions = {}) {
             super();
@@ -55,9 +58,9 @@ export namespace Application {
             return this;
         }
 
-        protected execute(ctx: Context.Context, fnWare: Callback): void {
-            fnWare(ctx)
-                .then(() => this.emit('end', ctx))
+        protected execute<Result>(ctx: Context.Context, fnWare: Callback): Promise<Result> {
+            return fnWare(ctx)
+                .then(data => { this.emit('end', ctx); return data })
                 .catch((err) => this.emit('error', err));
         }
 
@@ -95,7 +98,7 @@ export namespace Application {
                     mw = Application.createCompose(this.middleware.filter(m => !!m.router));
                 }
                 newCtx.data = data;
-                this.execute(newCtx, mw);
+                return this.execute(newCtx, mw);
             };
         }
 
@@ -116,11 +119,9 @@ export namespace Application {
             return this;
         }
 
-        public send<T extends any>(path: Path, data: T, ctx?: Context.Context): Application {
+        public send<T extends any, Result>(path: Path, data: T, ctx?: Context.Context): Promise<Result> {
             if (!this.handler || !this.__initialized) throw new Error('Application is not initialized.');
-
-            this.handler(path, data, ctx);
-            return this;
+            return this.handler(path, data, ctx);
         }
 
         public helper<Context extends any>(name?: string,callback?: Helper, context?: Context): Application {
